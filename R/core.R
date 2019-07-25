@@ -252,7 +252,7 @@ Consensus <- function(clusMat, large = FALSE, ...) {
                                            proportion = 2/3, minSize = 0, ...)
     df <- df$clustering
     df <- data.frame(clusters = df, comb = 1:length(df))
-    mapping <- data.frame(samples = 1:nrow(initialMat), comb = collapse$mapping)
+    mapping <- data.frame(samples = 1:nrow(clusMat), comb = collapse$mapping)
     df <- df %>% inner_join(mapping) %>%
       arrange(samples) %>%
       group_by(clusters) %>%
