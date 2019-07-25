@@ -247,7 +247,7 @@ Consensus <- function(clusMat, large = FALSE, ...) {
     )
     return(cellsConsensus$clustering)
   } else {
-    collapse <- .dupRemove(t(initialMat))
+    collapse <- .dupRemove(t(clusMat))
     df <- clusterExperiment::makeConsensus(t(collapse$smallMat),
                                            proportion = 2/3, minSize = 0, ...)
     df <- df$clustering
