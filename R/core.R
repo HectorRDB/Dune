@@ -258,7 +258,7 @@ Consensus <- function(clusMat, large = FALSE, ...) {
       group_by(clusters) %>%
       mutate(size = n()) %>%
       ungroup() %>%
-      mutate(clusters = clusters * (size >= 100) + (-1) * (size < 100))
+      mutate(clusters = clusters * (size >= 500) + (-1) * (size < 500))
     return(df$clusters)
   }
 }
