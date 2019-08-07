@@ -100,6 +100,12 @@ mergeManyPairwise <- function(clusteringMatrix, nCores = 3) {
 #' and 1) of the final value.
 #' @export
 assignRsec <- function(merger, p = 1) {
+  if (p < 0 | p > 1) {
+    stop("p must be between zero and one")
+  }
+  if (p == 0) {
+    return(merger$initalMat[,"RsecT"])
+  }
   ARI <- ARIImp(merger)
   K <- min(which(ARI >= min(ARI) + p * (max(ARI) - min(ARI))))
 
