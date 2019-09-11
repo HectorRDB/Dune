@@ -1,5 +1,5 @@
-Package: merger
-Title: What the Package Does (One Line, Title Case)
+Package: Dune
+Title: ARI-Merging
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "First",
@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "first.last@example.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: Given a set of clustering labels, Dune merges pairs of clusters to increase mean ARI between labels, improving replicability. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
