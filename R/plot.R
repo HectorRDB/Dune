@@ -215,3 +215,23 @@ ARItrend <- function(merger) {
   return(p)
 }
 
+#' Compute an ARI matrix and plot an heatmap of it
+#'
+#' We can compute the ARI between pairs of cluster labels. This function plots
+#' a matrix where a cell is the adjusted Rand Index between cluster label of
+#' row i and cluster label of column j.
+#' @param mat the matrix of clustering labels (one per columns)
+#' @param small whether to also display the values
+#' @return a \code{\link{ggplot}} object
+#' @importFrom mclust adjustedRandIndex
+#' @export
+
+clusterMatToAri <- function(mat, small = FALSE) {
+  ARI <- apply(mat, 2, function(x) {
+    apply(mat, 2, function(y) {
+      adjustedRandIndex(x, y)
+    })
+  })
+  return(plotARIs(ARI, small = small))
+}
+

@@ -237,9 +237,9 @@ FTracking <- function(merger, f, ...){
 #' Find the consensus clustering between three methods and return the consensus
 #' @param clusMat The clustering matrix with a row per cell and a column per
 #' clustering label type
-#' @param large If the dataset is too large to be handled by \code{\link{MakeConsensus}},
+#' @param large If the dataset is too large to be handled by \code{\link{makeConsensus}},
 #'  we use a different method to get the consensus clustering. Default to FALSE.
-#' @param ... Other arguments passed to \code{\link{MakeConsensus}}
+#' @param ... Other arguments passed to \code{\link{makeConsensus}}
 #' @return a vector of cluster assignations for the consensus.
 #' @importFrom clusterExperiment makeConsensus
 #' @import dplyr
