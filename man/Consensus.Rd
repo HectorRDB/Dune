@@ -10,10 +10,10 @@ Consensus(clusMat, large = FALSE, ...)
 \item{clusMat}{The clustering matrix with a row per cell and a column per
 clustering label type}
 
-\item{large}{If the dataset is too large to be handled by \code{\link{MakeConsensus}},
+\item{large}{If the dataset is too large to be handled by \code{\link{makeConsensus}},
 we use a different method to get the consensus clustering. Default to FALSE.}
 
-\item{...}{Other arguments passed to \code{\link{MakeConsensus}}}
+\item{...}{Other arguments passed to \code{\link{makeConsensus}}}
 }
 \value{
 a vector of cluster assignations for the consensus.

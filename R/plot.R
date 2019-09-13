@@ -234,4 +234,3 @@ clusterMatToAri <- function(mat, small = FALSE) {
   })
   return(plotARIs(ARI, small = small))
 }
-
