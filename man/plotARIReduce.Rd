@@ -10,7 +10,8 @@ plotARIReduce(merger, RSEC = FALSE)
 \item{merger}{the result from having run \code{\link{mergeManyPairwise}}
 on the dataset}
 
-\item{Rsec}{default to TRUE. Whether there is an RSEC cluster labels(i.e one that does not cluster all cells)}
+\item{RSEC}{default to \code{FALSE}. Whether there is an RSEC cluster labels
+(i.e one that does not cluster all cells)}
 }
 \value{
 the output from \code{\link{plot_grid}}

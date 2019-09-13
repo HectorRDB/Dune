@@ -67,7 +67,8 @@ plotPrePost <- function(merger) {
 #' another partition of the data.
 #' @param merger the result from having run \code{\link{mergeManyPairwise}}
 #' on the dataset
-#' @param Rsec default to TRUE. Whether there is an RSEC cluster labels(i.e one that does not cluster all cells)
+#' @param RSEC default to \code{FALSE}. Whether there is an RSEC cluster labels
+#' (i.e one that does not cluster all cells)
 #' @return the output from \code{\link{plot_grid}}
 #' @importFrom dplyr mutate
 #' @importFrom tidyr gather

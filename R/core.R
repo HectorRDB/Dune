@@ -273,13 +273,13 @@ Consensus <- function(clusMat, large = FALSE, ...) {
 #' @param clusMat The clustering matrix with a row per cell and a column per
 #' clustering label type
 #' @return a list containing the reduced matri and a way to map back to the original
-.dupRemove <- function(clusterMat) {
-  whDup <- which(duplicated(t(clusterMat)))
-  val <- apply(clusterMat, 2, paste, collapse = ",") # all combinations
+.dupRemove <- function(clusMat) {
+  whDup <- which(duplicated(t(clusMat)))
+  val <- apply(clusMat, 2, paste, collapse = ",") # all combinations
   if (length(whDup) > 0) {
-    clusterMat <- clusterMat[, -whDup, drop = FALSE]
+    clusMat <- clusMat[, -whDup, drop = FALSE]
   }
-  valSm <- apply(clusterMat, 2, paste, collapse = ",") # unique combinations
+  valSm <- apply(clusMat, 2, paste, collapse = ",") # unique combinations
   ind <- match(val, valSm)
-  return(list(smallMat = clusterMat, mapping = ind))
+  return(list(smallMat = clusMat, mapping = ind))
 }

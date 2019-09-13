@@ -4,7 +4,7 @@
 \alias{.dupRemove}
 \title{Remove the duplicated cells which belong to the same cluster over all labels.}
 \usage{
-.dupRemove(clusterMat)
+.dupRemove(clusMat)
 }
 \arguments{
 \item{clusMat}{The clustering matrix with a row per cell and a column per
