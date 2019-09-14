@@ -4,15 +4,23 @@
 \alias{ARItrend}
 \title{ARI improvement plot}
 \usage{
-ARItrend(merger)
+ARItrend(merger, unclustered = NULL)
 }
 \arguments{
-\item{merger}{the result from having run \code{\link{mergeManyPairwise}}
+\item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
+
+\item{unclustered}{The value assigned to unclustered cells. Default to
+\code{NULL}}
 }
 \value{
 a \code{\link{ggplot}} object
 }
 \description{
 A plot to see how ARI improves over merging
+}
+\examples{
+data("clusMat", package = "Dune")
+merger <- Dune(clusMat = clusMat)
+ARItrend(merger)
 }

@@ -7,7 +7,7 @@
 assignRsec(merger, p = 1)
 }
 \arguments{
-\item{merger}{the result from having run \code{\link{mergeManyPairwise}}
+\item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
 \item{p}{when to stop the merging, when mean ARI has improved to p (between 0

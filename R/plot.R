@@ -3,15 +3,24 @@
 #' We can compute the ARI between pairs of cluster labels. This function plots
 #' a matrix where a cell is the adjusted Rand Index between cluster label of
 #' row i and cluster label of column j.
-#' @param ARI the matrix of pairwise ARI
-#' @param small whether to also display the values
+#' @param clusMat The clustering matrix with a row per cell and a column per
+#' clustering label type
+#' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
+#' @param labels Whether to also display the ARI values. Default to TRUE
 #' @return a \code{\link{ggplot}} object
 #' @importFrom dplyr mutate
 #' @importFrom tidyr gather
+#' @importFrom magrittr %>%
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' plotARIs(merger$initalMat)
+#' plotARIs(merger$currentMat)
 #' @import ggplot2
 #' @export
 
-plotARIs <- function(ARI, small = T) {
+plotARIs <- function(clusMat, unclustered = NULL, labels = TRUE) {
+  ARI <- ARIs(clusMat, unclustered = unclustered)
   p <- ARI %>% as.data.frame() %>%
     dplyr::mutate(label = rownames(ARI)) %>%
     tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1)) %>%
@@ -20,28 +29,28 @@ plotARIs <- function(ARI, small = T) {
     scale_fill_viridis_c(limits = c(0, 1)) +
     theme_classic() +
     theme(axis.line = element_blank())
-  if (small) {
+  if (labels) {
     p <- p  +
       geom_text(aes(label = round(ari, 2))) +
-      guides(fill = F)
+      guides(fill = FALSE)
   }
   return(p)
 }
 
-#' Plot the reduction in cluster size for an ARI merging
-#' @param merger The output from an ARI merging
+#' Plot the reduction in cluster size for an ARI merging with \code{Dune}
+#' @param merger The output from an ARI merging, by calling \code{\link{Dune}}
 #' @return a \code{\link{ggplot}} object
 #' #' @importFrom dplyr mutate
 #' @importFrom tidyr gather
 #' @import ggplot2
+#' @importFrom magrittr %>%
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' plotPrePost(merger)
 #' @export
 plotPrePost <- function(merger) {
-  r1 <- which(colnames(merger$initalMat) == "RsecT")
-  if (all.equal(integer(0) ,r1) != TRUE) {
-    pre <- apply(merger$initalMat[,-r1], 2, function(x) length(unique(x)))
-  } else {
-    pre <- apply(merger$initalMat, 2, function(x) length(unique(x)))
-  }
+  pre <- apply(merger$initalMat, 2, function(x) length(unique(x)))
   post <- apply(merger$currentMat, 2, function(x) length(unique(x)))
   df <- data.frame(methods = names(pre),
                    before = pre,
@@ -57,133 +66,26 @@ plotPrePost <- function(merger) {
   return(p)
 }
 
-#' plot the ARI improvement between methods
-#'
-#' The output from this function is a grid of 4 plots, based on the
-#' \code{\link{plotARIs}} function. The first row of 2 plots is before the
-#' merging procedure, the second is after the merging procedure. The first
-#' column is when RSEC uses all assigned cells, the second column is when only
-#' using the cells that RSEC cluster for computing the ARI between RSEC and
-#' another partition of the data.
-#' @param merger the result from having run \code{\link{mergeManyPairwise}}
-#' on the dataset
-#' @param RSEC default to \code{FALSE}. Whether there is an RSEC cluster labels
-#' (i.e one that does not cluster all cells)
-#' @return the output from \code{\link{plot_grid}}
-#' @importFrom dplyr mutate
-#' @importFrom tidyr gather
-#' @import ggplot2
-#' @export
-#' @importFrom cowplot plot_grid ggdraw draw_plot
-plotARIReduce <- function(merger, RSEC = FALSE) {
-  # Before, No unclustered cells for RSEC
-  r1 <- which(colnames(merger$initalMat) == "RsecT")
-  if (all.equal(integer(0) ,r1) != TRUE) {
-    InitialARI <- apply(merger$initalMat[, -r1], 2, function(x) {
-      apply(merger$initalMat[, -r1], 2, function(y) {
-        inds <- x != -1 & y != -1
-        xa <- x[inds]
-        ya <- y[inds]
-        adjustedRandIndex(xa, ya)
-      })
-    })
-
-    p1 <- plotARIs(InitialARI) +
-      ggtitle("ARI before any merging, no unclustered cells for RSEC") +
-      theme(title = element_text(size = 6))
-
-    # Before, All cells assigned
-    r2 <- which(colnames(merger$initalMat) == "Rsec")
-    InitialARI <- apply(merger$initalMat[,-r2], 2, function(x) {
-      apply(merger$initalMat[,-r2], 2, function(y) {
-        adjustedRandIndex(x, y)
-      })
-    })
-    colnames(InitialARI)[colnames(InitialARI) == "RsecT"] <- "Rsec"
-    rownames(InitialARI)[rownames(InitialARI) == "RsecT"] <- "Rsec"
-
-    p2 <- plotARIs(InitialARI) +
-      ggtitle("ARI before any merging, all cells assigned") +
-      theme(title = element_text(size = 6))
-
-    ## After, No unclustered cells for Rsec
-    FinalARI <- apply(merger$currentMat, 2, function(x) {
-      apply(merger$currentMat, 2, function(y) {
-        inds <- x != -1 & y != -1
-        xa <- x[inds]
-        ya <- y[inds]
-        adjustedRandIndex(xa, ya)
-      })
-    })
-
-    p3 <- plotARIs(FinalARI) +
-      ggtitle("ARI after merging, no unclustered cells for RSEC") +
-      theme(title = element_text(size = 6))
-
-    ## After, Rsec with all cells
-    currentMat <- merger$currentMat
-    currentMat[, "Rsec"] <- assignRsec(merger)
-    FinalARI <- apply(currentMat, 2, function(x) {
-      apply(currentMat, 2, function(y) {
-        adjustedRandIndex(x, y)
-      })
-    })
-
-    p4 <- plotARIs(FinalARI) +
-      ggtitle("ARI after merging, all cells assigned") +
-      theme(title = element_text(size = 6))
-
-    p <- plot_grid(ggdraw() + draw_plot(p1),
-              ggdraw() + draw_plot(p2),
-              ggdraw() + draw_plot(p3),
-              ggdraw() + draw_plot(p4),
-              ncol = 2, rel_heights = rep(.25, 4), rel_widths = rep(.25, 4))
-  } else {
-    InitialARI <- apply(merger$initalMat, 2, function(x) {
-      apply(merger$initalMat, 2, function(y) {
-        adjustedRandIndex(x, y)
-      })
-    })
-
-    p1 <- plotARIs(InitialARI) +
-      ggtitle("ARI before any merging") +
-      theme(title = element_text(size = 6))
-
-    ## After
-    FinalARI <- apply(merger$currentMat, 2, function(x) {
-      apply(merger$currentMat, 2, function(y) {
-        adjustedRandIndex(x, y)
-      })
-    })
-
-    p2 <- plotARIs(FinalARI) +
-      ggtitle("ARI after merging") +
-      theme(title = element_text(size = 6))
-
-    p <- plot_grid(ggdraw() + draw_plot(p1),
-              ggdraw() + draw_plot(p2),
-              ncol = 2, rel_heights = rep(1, 2), rel_widths = rep(.33, 2))
-  }
-  return(p)
-}
-
 #' ARI improvement plot
 #'
 #' A plot to see how ARI improves over merging
-#' @param merger the result from having run \code{\link{mergeManyPairwise}}
+#' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
+#' @param unclustered The value assigned to unclustered cells. Default to
+#' \code{NULL}
 #' @return a \code{\link{ggplot}} object
 #' @importFrom dplyr mutate
 #' @importFrom tidyr gather
+#' @importFrom magrittr %>%
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' ARItrend(merger)
 #' @export
 #' @import ggplot2
-ARItrend <- function(merger) {
+ARItrend <- function(merger, unclustered = NULL) {
   baseMat <- merger$initalMat
-  j <- which(colnames(baseMat) == "RsecT")
-  if (all.equal(integer(0) ,j) != TRUE) {
-    baseMat <- baseMat[, -j]
-  }
-  ARI <- ARIImp(merger)
+  ARI <- ARIImp(merger, unclustered = unclustered)
   n_clus <- lapply(1:nrow(merger$merges), function(m){
     diff <- rep(0, ncol(baseMat))
     diff[merger$merges[m, 1]] <- -1
@@ -214,24 +116,4 @@ ARItrend <- function(merger) {
     labs(y = "Change over merging",
          col = "type")
   return(p)
-}
-
-#' Compute an ARI matrix and plot an heatmap of it
-#'
-#' We can compute the ARI between pairs of cluster labels. This function plots
-#' a matrix where a cell is the adjusted Rand Index between cluster label of
-#' row i and cluster label of column j.
-#' @param mat the matrix of clustering labels (one per columns)
-#' @param small whether to also display the values
-#' @return a \code{\link{ggplot}} object
-#' @importFrom mclust adjustedRandIndex
-#' @export
-
-clusterMatToAri <- function(mat, small = FALSE) {
-  ARI <- apply(mat, 2, function(x) {
-    apply(mat, 2, function(y) {
-      adjustedRandIndex(x, y)
-    })
-  })
-  return(plotARIs(ARI, small = small))
 }

@@ -4,12 +4,15 @@
 \alias{plotARIs}
 \title{Plot an heatmap of the ARI matrix}
 \usage{
-plotARIs(ARI, small = T)
+plotARIs(clusMat, unclustered = NULL, labels = TRUE)
 }
 \arguments{
-\item{ARI}{the matrix of pairwise ARI}
+\item{clusMat}{The clustering matrix with a row per cell and a column per
+clustering label type}
 
-\item{small}{whether to also display the values}
+\item{unclustered}{The value assigned to unclustered cells. Default to \code{NULL}}
+
+\item{labels}{Whether to also display the ARI values. Default to TRUE}
 }
 \value{
 a \code{\link{ggplot}} object
@@ -18,4 +21,10 @@ a \code{\link{ggplot}} object
 We can compute the ARI between pairs of cluster labels. This function plots
 a matrix where a cell is the adjusted Rand Index between cluster label of
 row i and cluster label of column j.
+}
+\examples{
+data("clusMat", package = "Dune")
+merger <- Dune(clusMat = clusMat)
+plotARIs(merger$initalMat)
+plotARIs(merger$currentMat)
 }

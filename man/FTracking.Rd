@@ -7,7 +7,7 @@
 FTracking(merger, f, ...)
 }
 \arguments{
-\item{merger}{the result from having run \code{\link{mergeManyPairwise}}
+\item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
 \item{f}{the function used, can be computed on any partition of the space}

@@ -2,17 +2,22 @@
 % Please edit documentation in R/plot.R
 \name{plotPrePost}
 \alias{plotPrePost}
-\title{Plot the reduction in cluster size for an ARI merging}
+\title{Plot the reduction in cluster size for an ARI merging with \code{Dune}}
 \usage{
 plotPrePost(merger)
 }
 \arguments{
-\item{merger}{The output from an ARI merging}
+\item{merger}{The output from an ARI merging, by calling \code{\link{Dune}}}
 }
 \value{
 a \code{\link{ggplot}} object
 #' @importFrom dplyr mutate
 }
 \description{
-Plot the reduction in cluster size for an ARI merging
+Plot the reduction in cluster size for an ARI merging with \code{Dune}
+}
+\examples{
+data("clusMat", package = "Dune")
+merger <- Dune(clusMat = clusMat)
+plotPrePost(merger)
 }

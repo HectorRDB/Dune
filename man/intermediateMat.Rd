@@ -8,7 +8,7 @@ early}
 intermediateMat(merger, p = 0.9)
 }
 \arguments{
-\item{merger}{the result from having run \code{\link{mergeManyPairwise}}
+\item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
 \item{p}{A value between 0 and 1. We stop when the mean ARI has improved by p
