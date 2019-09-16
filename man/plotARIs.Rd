@@ -4,7 +4,8 @@
 \alias{plotARIs}
 \title{Plot an heatmap of the ARI matrix}
 \usage{
-plotARIs(clusMat, unclustered = NULL, labels = TRUE)
+plotARIs(clusMat, unclustered = NULL, values = TRUE,
+  numericalLabels = FALSE)
 }
 \arguments{
 \item{clusMat}{The clustering matrix with a row per cell and a column per
@@ -12,7 +13,9 @@ clustering label type}
 
 \item{unclustered}{The value assigned to unclustered cells. Default to \code{NULL}}
 
-\item{labels}{Whether to also display the ARI values. Default to TRUE}
+\item{values}{Whether to also display the ARI values. Default to TRUE.}
+
+\item{numericalLabels}{Whether labels are numerical values. Default to FALSE.}
 }
 \value{
 a \code{\link{ggplot}} object

@@ -6,7 +6,8 @@
 #' @param clusMat The clustering matrix with a row per cell and a column per
 #' clustering label type
 #' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
-#' @param labels Whether to also display the ARI values. Default to TRUE
+#' @param values Whether to also display the ARI values. Default to TRUE.
+#' @param numericalLabels Whether labels are numerical values. Default to FALSE.
 #' @return a \code{\link{ggplot}} object
 #' @importFrom dplyr mutate
 #' @importFrom tidyr gather
@@ -19,17 +20,22 @@
 #' @import ggplot2
 #' @export
 
-plotARIs <- function(clusMat, unclustered = NULL, labels = TRUE) {
+plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
+                     numericalLabels = FALSE) {
   ARI <- ARIs(clusMat, unclustered = unclustered)
-  p <- ARI %>% as.data.frame() %>%
+  df <- ARI %>% as.data.frame() %>%
     dplyr::mutate(label = rownames(ARI)) %>%
-    tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1)) %>%
-    ggplot(aes(x = label, y = label2, fill = ari)) +
+    tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1))
+  if (numericalLabels) {
+    df <- df %>%
+      dplyr::mutate(label = as.numeric(label), label2 = as.numeric(label2))
+  }
+  p <- ggplot(df, aes(x = label, y = label2, fill = ari)) +
     geom_tile() +
     scale_fill_viridis_c(limits = c(0, 1)) +
     theme_classic() +
     theme(axis.line = element_blank())
-  if (labels) {
+  if (values) {
     p <- p  +
       geom_text(aes(label = round(ari, 2))) +
       guides(fill = FALSE)

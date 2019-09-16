@@ -104,7 +104,9 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
     # If no more to merge in any of them, stop
     if (sum(sapply(clusters, length) == 1) == length(clusters)) break()
   }
-
+  if (is.null(merges)) {
+    stop("This resulted in no merges. Check input cluster labels")
+  }
   colnames(merges) <- c("clusteringLabel", "cluster1", "cluster2")
   return(list("initalMat" = clusMat,
               "currentMat" = as.data.frame(currentMat),
