@@ -78,7 +78,7 @@ The output from `Dune` is a list with four compoments:
 names(merger)
 ```
 
-`InitialMat` is the initial matrix. of cluster labels. `currentMat` is the final matrix of cluster labels. `merges` is a matrix that recapitulates what has been printed above, while ImpARI list the ARI improvement over the merges.
+`initialMat` is the initial matrix. of cluster labels. `currentMat` is the final matrix of cluster labels. `merges` is a matrix that recapitulates what has been printed above, while `ImpARI` list the ARI improvement over the merges.
 
 ## ARI improvement
 

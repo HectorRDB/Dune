@@ -10,7 +10,16 @@
 #'  the final matrix of clustering labels, the merge info matrix and the ARI
 #'  improvement vector.
 #' @details The Dune algorithm merges pairs of clusters in order to improve the
-#' mean adjusted Rand Index with other clustering labels.
+#' mean adjusted Rand Index with other clustering labels. It returns a list with
+#'  four components.:
+#'  #' \itemize{
+#'   \item \code{initialMat}: The initial matrix of cluster labels
+#'   \item \code{currentMat}: The final matrix of cluster labels
+#'   \item \code{merges}: The step-by-step detail of the merges, recapitulating
+#'   which clusters where merged in which cluster label
+#'   \item \code{impARI}: How much each merge improved the mean ARI between the
+#'   cluster label that has been merged and the other cluster labels.
+#' }
 #' @seealso clusterConversion ARIImp
 #' @importFrom parallel mclapply
 #' @importFrom mclust adjustedRandIndex
@@ -108,56 +117,10 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
     stop("This resulted in no merges. Check input cluster labels")
   }
   colnames(merges) <- c("clusteringLabel", "cluster1", "cluster2")
-  return(list("initalMat" = clusMat,
+  return(list("initialMat" = clusMat,
               "currentMat" = as.data.frame(currentMat),
               "merges" = as.data.frame(merges),
               "ImpARI" = ImpARI))
-}
-
-#' Assign cells using the assignUnassigned function of RSEC
-#'
-#' By default, RSEC does not assign all cells, leaving those as "-1".
-#' However, to give a fair comparison with other labels, it is necessary to
-#' assign cells so it is necessary to track that along the merging
-#' @param merger the result from having run \code{\link{Dune}}
-#' on the dataset
-#' @param p when to stop the merging, when mean ARI has improved to p (between 0
-#' and 1) of the final value.
-#' @importFrom magrittr %>%
-#' @export
-assignRsec <- function(merger, p = 1) {
-  if (p < 0 | p > 1) {
-    stop("p must be between zero and one")
-  }
-  if (p == 0) {
-    return(merger$initalMat[,"RsecT"])
-  }
-  ARI <- ARIImp(merger)
-  K <- min(which(ARI >= min(ARI) + p * (max(ARI) - min(ARI))))
-
-  r1 <- which(colnames(merger$initalMat) == "RsecT")
-  r2 <- which(colnames(merger$initalMat) == "Rsec")
-
-  currentMat <- merger$currentMat
-  Rsec_merges <- merger$merges[1:(K - 1), ]
-  Rsec_merges <- Rsec_merges[Rsec_merges[,1] == 2, ]
-  if (is.null(dim(Rsec_merges))) Rsec_merges <- matrix(Rsec_merges, nrow = 1)
-  Rsec_merges <- Rsec_merges[, -1]
-  if (is.null(dim(Rsec_merges))) Rsec_merges <- matrix(Rsec_merges, nrow = 1)
-  if (nrow(Rsec_merges) == 0) {
-    return(merger$initalMat$RsecT)
-  } else {
-    assign <- lapply(1:nrow(currentMat), function(i) {
-      cell <- merger$initalMat[i, r2]
-      cellT <- merger$initalMat[i, r1]
-      for (j in 1:nrow(Rsec_merges)) {
-        if (cellT %in% Rsec_merges[j, ]) cellT <- min(Rsec_merges[j, ])
-      }
-      return(cellT)
-    }) %>%
-      unlist()
-    return(assign)
-  }
 }
 
 #' ARI improvement
@@ -175,10 +138,12 @@ assignRsec <- function(merger, p = 1) {
 #' plot(0:nrow(merger$merges), ARIImp(merger))
 #' @export
 ARIImp <- function(merger, unclustered = NULL) {
-  baseMat <- merger$initalMat
-  baseARI <- ARIs(baseMat, unclustered = unclustered)
+  baseARI <- ARIs(merger$initialMat, unclustered = unclustered)
+  # Normalize the impARI so that we take the mean over the same values.
+  ARI <- merger$ImpARI *
+    (ncol(merger$initialMat) - 1) / sum(upper.tri(baseARI))
   baseARI <- baseARI[upper.tri(baseARI)] %>% mean()
-  ARI <- c(baseARI, merger$ImpARI)
+  ARI <- c(baseARI, ARI)
   ARI <- cumsum(ARI)
   return(ARI)
 }
@@ -188,128 +153,115 @@ ARIImp <- function(merger, unclustered = NULL) {
 #' Find the conversion between the old cluster and the final clusters
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
-#' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
-#' @return a vector with the mean ARI between methods at each merge
+#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
+#' of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param n_steps Alternatively, you can specifiy the number of merging steps to
+#' do before stopping.
+#' @return A list containing a matrix per clustering method, with a column for the old labels
+#' and a column for the new labels.
 #' @importFrom magrittr %>%
+#' @importFrom purrr walk
+#' @importFrom dplyr n_distinct filter
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' clusterConversion(merger)[[2]]
 #' @export
-clusterConversion <- function(merger, unclustered = NULL) {
-  baseMat <- merger$initalMat
-  baseARI <- ARIs(baseMat, unclustered = unclustered)
-  baseARI <- baseARI[upper.tri(baseARI)] %>% mean()
-  ARI <- c(baseARI, merger$ImpARI)
-  ARI <- cumsum(ARI)
-  return(ARI)
+clusterConversion <- function(merger, p = 1, n_steps = NULL) {
+  # Compute ARI imp and find where to stop the merge
+  merges <- merger$merges
+  if (is.null(n_steps)) {
+    j <- whenToStop(merger, p = p)
+  } else {
+    j <- n_steps
+  }
+  merges <- merges[1:j, ]
+  updates <- lapply(seq_len(ncol(merger$initialMat)), function(clusLab){
+    clusters <- unique(merger$initialMat[, clusLab])
+    update <- data.frame(old = clusters, new = clusters)
+    return(update)
+  })
+  walk(seq_len(nrow(merges)), function(i) {
+    clusLab <- merges[i, 1]
+    clus <- max(merges[i, 2:3])
+    id <- updates[[clusLab]]$new == clus
+    updates[[clusLab]][id, "new"] <<- min(merges[i, 2:3])
+  })
+  return(updates)
 }
 
 #' Find the clustering matrix that we would get if we stopped the ARI merging
 #' early
 #' @param merger the result from having run \code{\link{Dune}}
-#' on the dataset
+#'  on the dataset
 #' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
-#' of the final total improvement
+#' of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param n_steps Alternatively, you can specifiy the number of merging steps to
+#' do before stopping.
 #' @return A matrix with the same dimensions as the currentmMat of the merger
 #' argument
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' head(intermediateMat(merger, n_steps = 1))
 #' @importFrom magrittr %>%
+#' @import dplyr
+#' @import tidyr
 #' @export
-intermediateMat <- function(merger, p = .9) {
-  # Compute ARI imp and find where to stop the merge
-  ARI <- ARIImp(merger)
-  int_merges <- merger$merges
-  j <- min(which(ARI[2:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))))
-  int_merges <- int_merges[1:j, ]
-  assign <- sapply(colnames(merger$currentMat), function(clus) {
-    J <- which(colnames(merger$initalMat) == clus)
-    if (sum(int_merges[, 1] == J) == 0) {
-      return(merger$initalMat[, clus])
-    } else {
-      clus_merges <- int_merges[int_merges[, 1] == J, ] %>%
-        as.matrix() %>% matrix(ncol = 3)
-      cells <- merger$initalMat[, clus]
-      for (i in 1:nrow(clus_merges)) {
-        indsPair <- which(cells %in% clus_merges[i, 2:3])
-        cells[indsPair] <- min(clus_merges[i, 2:3])
-      }
-      return(cells)
-    }
-  })
-
-  j <- which(colnames(merger$initalMat) == "RsecT")
-  if (all.equal(integer(0) ,j) != TRUE) {
-    colnames(assign) <- colnames(merger$initalMat)[-j]
-  } else {
-    colnames(assign) <- colnames(merger$initalMat)
-  }
-
-  return(assign)
+intermediateMat <- function(merger, p = 1, n_steps = NULL) {
+  # Get the conversion
+  oldToNew <- clusterConversion(merger = merger, p = p, n_steps = n_steps)
+  initialMat <- merger$initialMat %>% as.data.frame()
+  names(oldToNew) <- colnames(initialMat)
+  oldToNew <- bind_rows(oldToNew, .id = "cluster_label")
+  initialMat <- initialMat %>%
+    dplyr::mutate(cells = rownames(initialMat)) %>%
+    pivot_longer(cols = colnames(initialMat), values_to = "old",
+                 names_to = "cluster_label")
+  newMat <- full_join(oldToNew, initialMat,
+                      by = c("old" = "old", "cluster_label" = "cluster_label")) %>%
+    select(cluster_label, new, cells) %>%
+    pivot_wider(names_from = "cluster_label", values_from = "new") %>%
+    arrange(cells)
+  suppressWarnings(rownames(newMat) <- newMat$cells)
+  newMat <- newMat %>% select(-cells)
+  return(newMat)
 }
 
 #' Track the evolution of a function along merging
 #'
-#' For a given ARI merging, compute the evolution on the function f with
-#' another partition
+#' For a given ARI merging, compute the evolution on the function f
+#'
 #' @param merger the result from having run \code{\link{Dune}}
 #' on the dataset
-#' @param f the function used, can be computed on any partition of the space
+#' @param f the function used. It must takes as input a clustering matrix and
+#' return a value
+#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
+#' of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param n_steps Alternatively, you can specifiy the number of merging steps to
+#' do before stopping.
 #' @param ... additional arguments passed to f
-#' @return a matrix with a column per initial clustering, and a row per merge
-#' with the f value computed
-#' @importFrom magrittr %>%
-#' @export
-FTracking <- function(merger, f, ...){
-  # Go over the merge and compute the homogeneity as we go
-  baseMat <- merger$initalMat
-  j <- which(colnames(baseMat) == "Rsec")
-  if (all.equal(integer(0) ,j) != TRUE) {
-    baseMat <- baseMat[, -j]
-  }
-  currentMat <- baseMat
-
-  Evolution <- apply(baseMat, 2, f, ...) %>%  matrix(ncol = ncol(baseMat))
-
-  for (m in seq_len(nrow(merger$merges))) {
-    wClus <- merger$merges[m, 1]
-    clus <- currentMat[, wClus]
-    pair <- merger$merges[m, 2:3]
-    clus[clus %in% pair] <- min(pair)
-    currentMat[, wClus] <- clus
-    Evolution <- rbind(Evolution, Evolution[nrow(Evolution), ])
-    Evolution[nrow(Evolution), wClus] <- f(clus, ...)
-  }
-  return(Evolution)
-}
-
-#' Find the consensus clustering between three methods and return the consensus
-#' @param clusMat The clustering matrix with a row per cell and a column per
-#' clustering label type
-#' @param large If the dataset is too large to be handled by \code{\link{makeConsensus}},
-#'  we use a different method to get the consensus clustering. Default to FALSE.
-#' @param ... Other arguments passed to \code{\link{makeConsensus}}
-#' @return a vector of cluster assignations for the consensus.
-#' @importFrom clusterExperiment makeConsensus
+#' @return a vector of length the number of merges
 #' @importFrom magrittr %>%
 #' @import dplyr
+#' @examples
+#' # Return the number of clusters for the fourth cluster label
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' f <- function(clusMat, i) dplyr::n_distinct(clusMat[, i])
+#' functionTracking(merger, f, i = 4)
 #' @export
-Consensus <- function(clusMat, large = FALSE, ...) {
-  if (!large) {
-    cellsConsensus <- suppressWarnings(
-    clusterExperiment::makeConsensus(x = as.matrix(clusMat),
-                                     clusterLabel = "makeConsensus",
-                                     proportion = 2/3, minSize = 100, ...)
-    )
-    return(cellsConsensus$clustering)
+functionTracking <- function(merger, f, p = 1, n_steps = NULL, ...){
+  # Go over the merge and compute the function as we go
+  if (is.null(n_steps)) {
+    j <- whenToStop(merger, p = p)
   } else {
-    collapse <- .dupRemove(t(clusMat))
-    df <- clusterExperiment::makeConsensus(t(collapse$smallMat),
-                                           proportion = 2/3, minSize = 0, ...)
-    df <- df$clustering
-    df <- data.frame(clusters = df, comb = 1:length(df))
-    mapping <- data.frame(samples = 1:nrow(clusMat), comb = collapse$mapping)
-    df <- df %>% inner_join(mapping) %>%
-      arrange(samples) %>%
-      group_by(clusters) %>%
-      mutate(size = n()) %>%
-      ungroup() %>%
-      mutate(clusters = clusters * (size >= 500) + (-1) * (size < 500))
-    return(df$clusters)
+    j <- n_steps
   }
+  values <- rep(0, j + 1)
+  values[1] <- f(merger$initialMat, ...)
+  for (i in seq_len(j)) {
+    values[i + 1] <- f(intermediateMat(merger, n_steps = i), ...)
+  }
+  return(values)
 }

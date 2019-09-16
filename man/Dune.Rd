@@ -26,7 +26,16 @@ Compute the ARI between every pair of clustering labels after merging every poss
 }
 \details{
 The Dune algorithm merges pairs of clusters in order to improve the
-mean adjusted Rand Index with other clustering labels.
+mean adjusted Rand Index with other clustering labels. It returns a list with
+four components.:
+#' \itemize{
+\item \code{initialMat}: The initial matrix of cluster labels
+\item \code{currentMat}: The final matrix of cluster labels
+\item \code{merges}: The step-by-step detail of the merges, recapitulating
+which clusters where merged in which cluster label
+\item \code{impARI}: How much each merge improved the mean ARI between the
+cluster label that has been merged and the other cluster labels.
+}
 }
 \examples{
 data("clusMat", package = "Dune")

@@ -15,7 +15,7 @@
 #' @examples
 #' data("clusMat", package = "Dune")
 #' merger <- Dune(clusMat = clusMat)
-#' plotARIs(merger$initalMat)
+#' plotARIs(merger$initialMat)
 #' plotARIs(merger$currentMat)
 #' @import ggplot2
 #' @export
@@ -24,13 +24,13 @@ plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
                      numericalLabels = FALSE) {
   ARI <- ARIs(clusMat, unclustered = unclustered)
   df <- ARI %>% as.data.frame() %>%
-    dplyr::mutate(label = rownames(ARI)) %>%
+    dplyr::mutate(label1 = rownames(ARI)) %>%
     tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1))
   if (numericalLabels) {
     df <- df %>%
-      dplyr::mutate(label = as.numeric(label), label2 = as.numeric(label2))
+      dplyr::mutate(label = as.numeric(label1), label2 = as.numeric(label2))
   }
-  p <- ggplot(df, aes(x = label, y = label2, fill = ari)) +
+  p <- ggplot(df, aes(x = label1, y = label2, fill = ari)) +
     geom_tile() +
     scale_fill_viridis_c(limits = c(0, 1)) +
     theme_classic() +
@@ -56,7 +56,7 @@ plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
 #' plotPrePost(merger)
 #' @export
 plotPrePost <- function(merger) {
-  pre <- apply(merger$initalMat, 2, function(x) length(unique(x)))
+  pre <- apply(merger$initialMat, 2, function(x) length(unique(x)))
   post <- apply(merger$currentMat, 2, function(x) length(unique(x)))
   df <- data.frame(methods = names(pre),
                    before = pre,
@@ -90,7 +90,7 @@ plotPrePost <- function(merger) {
 #' @export
 #' @import ggplot2
 ARItrend <- function(merger, unclustered = NULL) {
-  baseMat <- merger$initalMat
+  baseMat <- merger$initialMat
   ARI <- ARIImp(merger, unclustered = unclustered)
   n_clus <- lapply(1:nrow(merger$merges), function(m){
     diff <- rep(0, ncol(baseMat))
@@ -98,7 +98,7 @@ ARItrend <- function(merger, unclustered = NULL) {
     matrix(diff, nrow = 1)
   }) %>%
     do.call('rbind', args = .)
-  n_clus <- rbind(sapply(baseMat, n_distinct) %>% matrix(data = ., nrow = 1),
+  n_clus <- rbind(apply(baseMat, 2, n_distinct) %>% matrix(data = ., nrow = 1),
                   n_clus)
   n_clus <- apply(n_clus, 2, cumsum)
   colnames(n_clus) <- colnames(baseMat)

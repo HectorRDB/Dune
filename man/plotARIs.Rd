@@ -28,6 +28,6 @@ row i and cluster label of column j.
 \examples{
 data("clusMat", package = "Dune")
 merger <- Dune(clusMat = clusMat)
-plotARIs(merger$initalMat)
+plotARIs(merger$initialMat)
 plotARIs(merger$currentMat)
 }

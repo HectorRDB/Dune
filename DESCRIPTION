@@ -1,7 +1,7 @@
 Package: Dune
 Title: ARI-Merging
 Version: 0.0.0.9000
-Authors@R:c(person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
+Authors@R: c(person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
                    email = "hector.rouxdebezieux@berkeley.edu",
 		   comment = c(ORCID = "0000-0002-1489-8339")),
 	    person("Kelly","Street", role = "aut"))
@@ -19,12 +19,13 @@ Imports:
     tidyr,
     magrittr,
     parallel,
-    clusterExperiment
+    clusterExperiment,
+    purrr
 Suggests: 
     knitr,
     rmarkdown,
     RColorBrewer,
-    purrr
+    testthat
 VignetteBuilder: knitr
 Depends: R (>= 3.5)
 biocViews:

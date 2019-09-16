@@ -4,17 +4,27 @@
 \alias{clusterConversion}
 \title{clusterConversion}
 \usage{
-clusterConversion(merger, unclustered = NULL)
+clusterConversion(merger, p = 1, n_steps = NULL)
 }
 \arguments{
 \item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
-\item{unclustered}{The value assigned to unclustered cells. Default to \code{NULL}}
+\item{p}{A value between 0 and 1. We stop when the mean ARI has improved by p
+of the final total improvement. Default to 1 (i.e running the full merging).}
+
+\item{n_steps}{Alternatively, you can specifiy the number of merging steps to
+do before stopping.}
 }
 \value{
-a vector with the mean ARI between methods at each merge
+A list containing a matrix per clustering method, with a column for the old labels
+and a column for the new labels.
 }
 \description{
 Find the conversion between the old cluster and the final clusters
+}
+\examples{
+data("clusMat", package = "Dune")
+merger <- Dune(clusMat = clusMat)
+clusterConversion(merger)[[2]]
 }

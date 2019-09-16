@@ -24,7 +24,6 @@
 #' \code{unclustered} cluster will not be counted towards computing the ARI.
 #' @importFrom mclust adjustedRandIndex
 #' @export
-
 ARIs <- function(clusMat, unclustered = NULL) {
   ARI <- apply(clusMat, 2, function(x) {
     apply(clusMat, 2, function(y) {
@@ -38,5 +37,33 @@ ARIs <- function(clusMat, unclustered = NULL) {
       mclust::adjustedRandIndex(x_unc, y_unc)
     })
   })
+  if (is.null(colnames(clusMat))) {
+    rownames(ARI) <- colnames(ARI) <- 1:ncol(clusMat)
+  } else {
+    rownames(ARI) <- colnames(ARI) <- colnames(clusMat)
+  }
+
   return(ARI)
+}
+
+#' @title ARI Matrix
+#' @param merger the result from having run \code{\link{Dune}}
+#'  on the dataset
+#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
+#' of the final total improvement. Default to 1 (i.e running the full merging).
+#' @return An integer giving the step where to stop.
+#' @details The \code{\link{Dune}} process improves the mean ARI. This return
+#' the first merging step after which the mean ARI has been improved by p of the
+#' total. Setting p = 1 just return the number of merges.
+#' @importFrom mclust adjustedRandIndex
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' whenToStop(merger, p = .5)
+#' @export
+whenToStop <- function(merger, p) {
+  if (p < 0 | p > 1) stop("p must be between 0 and 1")
+  ARI <- ARIImp(merger)
+  j <- min(which(ARI[2:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))))
+  return(j)
 }

@@ -5,14 +5,17 @@
 \title{Find the clustering matrix that we would get if we stopped the ARI merging
 early}
 \usage{
-intermediateMat(merger, p = 0.9)
+intermediateMat(merger, p = 1, n_steps = NULL)
 }
 \arguments{
 \item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
 \item{p}{A value between 0 and 1. We stop when the mean ARI has improved by p
-of the final total improvement}
+of the final total improvement. Default to 1 (i.e running the full merging).}
+
+\item{n_steps}{Alternatively, you can specifiy the number of merging steps to
+do before stopping.}
 }
 \value{
 A matrix with the same dimensions as the currentmMat of the merger
@@ -21,4 +24,9 @@ argument
 \description{
 Find the clustering matrix that we would get if we stopped the ARI merging
 early
+}
+\examples{
+data("clusMat", package = "Dune")
+merger <- Dune(clusMat = clusMat)
+head(intermediateMat(merger, n_steps = 1))
 }
