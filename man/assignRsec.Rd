@@ -13,6 +13,9 @@ on the dataset}
 \item{p}{when to stop the merging, when mean ARI has improved to p (between 0
 and 1) of the final value.}
 }
+\value{
+rsec are now all assigned
+}
 \description{
 By default, RSEC does not assign all cells, leaving those as "-1".
 However, to give a fair comparison with other labels, it is necessary to

@@ -8,6 +8,7 @@
 #' @param p when to stop the merging, when mean ARI has improved to p (between 0
 #' and 1) of the final value.
 #' @importFrom magrittr %>%
+#' @return rsec are now all assigned
 assignRsec <- function(merger, p = 1) {
   if (p < 0 | p > 1) {
     stop("p must be between zero and one")
