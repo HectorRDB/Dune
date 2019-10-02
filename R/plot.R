@@ -123,3 +123,59 @@ ARItrend <- function(merger, unclustered = NULL) {
          col = "type")
   return(p)
 }
+
+#' Plot confusion matrix
+#'
+#' A plot to visualize how alike two clustering labels are
+#' @param x A vector of clustering labels or a matrix of clustering labels. See details.
+#' @param y Optional. Another vector of clustering labels
+#' @return a \code{\link{ggplot}} object
+#' @importFrom dplyr mutate group_by
+#' @importFrom tidyr gather
+#' @importFrom magrittr %>%
+#' @importFrom RColorBrewer brewer.pal
+#' @examples
+#' data("nuclei", package = "Dune")
+#' ConfusionPlot(clusMat[, c("SC3", "Monocle")])
+#' @export
+#' @import ggplot2
+
+ConfusionPlot <- function(x, y = NULL) {
+  if (is.null(y)) {
+    y <- x[, 2]
+    x <- x[, 1]
+  } else {
+    if (length(x) != length(y)) {
+      stop("x and y must have the same length")
+    }
+  }
+  df <- table(x, y) %>%
+    as.data.frame() %>%
+    group_by(x) %>%
+    mutate(total_x = sum(Freq)) %>%
+    group_by(y) %>%
+    mutate(total_y = sum(Freq),
+           union = total_x + total_y - Freq,
+           overlap = Freq / union) %>%
+    ungroup() %>%
+    arrange(desc(Freq)) %>%
+    filter(Freq > 0)
+  df$x <- factor(df$x, levels = unique(df$x))
+  df$y <- factor(df$y, levels = unique(df$y))
+  p <- ggplot(df, aes(x = x, y = y, col = overlap, size = Freq)) +
+    geom_point() +
+    theme_bw() +
+    theme(legend.position = "top",
+          rect = element_blank(),
+          panel.border = element_blank(),
+          legend.box.spacing = unit(0, units = "npc"),
+          legend.margin	=  margin(r = .1, l = .1, unit = "npc")) +
+    NULL +
+    labs(col = "% of Overlap", size = "# of Cells") +
+    scale_color_gradientn(colours = brewer.pal(11, "Spectral")) +
+    guides(size = guide_legend(title.position = "top", fill = "grey"),
+           col = guide_colourbar(title.position = "top",
+                                 barwidth = unit(.2, "npc")))
+  return(p)
+  }
+
