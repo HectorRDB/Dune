@@ -46,7 +46,7 @@ ARIs <- function(clusMat, unclustered = NULL) {
   return(ARI)
 }
 
-#' @title ARI Matrix
+#' @title When to Stop
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
 #' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
@@ -55,7 +55,6 @@ ARIs <- function(clusMat, unclustered = NULL) {
 #' @details The \code{\link{Dune}} process improves the mean ARI. This return
 #' the first merging step after which the mean ARI has been improved by p of the
 #' total. Setting p = 1 just return the number of merges.
-#' @importFrom mclust adjustedRandIndex
 #' @examples
 #' data("clusMat", package = "Dune")
 #' merger <- Dune(clusMat = clusMat)
@@ -67,3 +66,20 @@ whenToStop <- function(merger, p) {
   j <- min(which(ARI[2:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))))
   return(j)
 }
+
+#' @title adjustedRandIndex
+#' @param table The confusion matrix
+#' @return The ARI
+#' @details Second part of the \code{\link{adjustedRandIndex}} function from
+#'  \code{\link{mclust}}.
+.adjustedRandIndex <- function(tab) {
+  if (all(dim(tab) == c(1, 1))) return(1)
+  a <- sum(choose(tab, 2))
+  b <- sum(choose(rowSums(tab), 2)) - a
+  c <- sum(choose(colSums(tab), 2)) - a
+  d <- choose(sum(tab), 2) - a - b - c
+  ARI <- (a - (a + b) * (a + c)/(a + b + c + d))/((a + b +
+                                                     a + c)/2 - (a + b) * (a + c)/(a + b + c + d))
+  return(ARI)
+}
+
