@@ -78,8 +78,8 @@ whenToStop <- function(merger, p) {
   b <- sum(choose(rowSums(tab), 2)) - a
   c <- sum(choose(colSums(tab), 2)) - a
   d <- choose(sum(tab), 2) - a - b - c
-  ARI <- (a - (a + b) * (a + c)/(a + b + c + d))/((a + b +
-                                                     a + c)/2 - (a + b) * (a + c)/(a + b + c + d))
+  ARI <- (a - (a + b) * (a + c)/(a + b + c + d)) /
+    ((a + b + a + c) / 2 - (a + b) * (a + c) / (a + b + c + d))
   return(ARI)
 }
 
