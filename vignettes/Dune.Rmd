@@ -58,7 +58,7 @@ walk(c("SC3", "Seurat", "Monocle"), function(clus_algo){
 The adjusted Rand Index between the three methods can be computed.
 
 ```{r}
-plotARIs( nuclei %>% select(SC3, Seurat, Monocle))
+plotARIs(nuclei %>% select(SC3, Seurat, Monocle))
 ```
 
 As we can see, the ARI between the three methods is initially quite low.

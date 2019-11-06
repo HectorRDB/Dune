@@ -114,11 +114,11 @@ ARItrend <- function(merger, unclustered = NULL) {
     theme_classic() +
     scale_x_continuous(breaks = c(0, length(merger$ImpARI)),
                        labels = c("Initial", "Final")) +
-    geom_hline(yintercept = min(ARI) + .9 * (max(ARI) - min(ARI)),
-               col = "grey", linetype = "dashed", size = 2) +
-    geom_vline(xintercept = min(which(ARI >= min(ARI) +
-                                        .9 * (max(ARI) - min(ARI)))),
-               col = "grey", linetype = "dashed", size = 2) +
+    # geom_hline(yintercept = min(ARI) + .9 * (max(ARI) - min(ARI)),
+    #            col = "grey", linetype = "dashed", size = 2) +
+    # geom_vline(xintercept = min(which(ARI >= min(ARI) +
+    #                                     .9 * (max(ARI) - min(ARI)))),
+    #            col = "grey", linetype = "dashed", size = 2) +
     labs(y = "Change over merging",
          col = "type")
   return(p)
