@@ -28,7 +28,7 @@ plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
     tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1))
   if (numericalLabels) {
     df <- df %>%
-      dplyr::mutate(label = as.numeric(label1), label2 = as.numeric(label2))
+      dplyr::mutate(label1 = as.numeric(label1), label2 = as.numeric(label2))
   }
   p <- ggplot(df, aes(x = label1, y = label2, fill = ari)) +
     geom_tile() +
