@@ -44,7 +44,7 @@ ARIImp <- function(merger, unclustered = NULL) {
 #' @export
 clusterConversion <- function(merger, p = 1, n_steps = NULL) {
   if (p == 0 | (!is.null(n_steps) && n_steps == 0)) {
-    updates <- lapply(merger$initialMat, function(clusters){
+    updates <- lapply(as.data.frame(merger$initialMat), function(clusters){
       return(data.frame(old = unique(clusters), new = unique(clusters)))
     })
   } else {
