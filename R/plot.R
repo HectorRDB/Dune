@@ -18,6 +18,7 @@
 #' plotARIs(merger$initialMat)
 #' plotARIs(merger$currentMat)
 #' @import ggplot2
+#' @import RColorBrewer
 #' @export
 
 plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
@@ -32,12 +33,13 @@ plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
   }
   p <- ggplot(df, aes(x = label1, y = label2, fill = ari)) +
     geom_tile() +
-    scale_fill_viridis_c(limits = c(0, 1)) +
+    scale_fill_gradientn(colours = brewer.pal(9, "Spectral"),
+                         limits = c(0, 1)) +
     theme_classic() +
     theme(axis.line = element_blank())
   if (values) {
     p <- p  +
-      geom_text(aes(label = round(ari, 2))) +
+      geom_text(aes(label = round(ari, 2)), size = 4) +
       guides(fill = FALSE)
   }
   return(p)
@@ -112,13 +114,9 @@ ARItrend <- function(merger, unclustered = NULL) {
     geom_path(size = 2, aes(group = change, col = change)) +
     facet_wrap(~type, scales = "free") +
     theme_classic() +
+    scale_color_brewer(type = "qual") +
     scale_x_continuous(breaks = c(0, length(merger$ImpARI)),
                        labels = c("Initial", "Final")) +
-    # geom_hline(yintercept = min(ARI) + .9 * (max(ARI) - min(ARI)),
-    #            col = "grey", linetype = "dashed", size = 2) +
-    # geom_vline(xintercept = min(which(ARI >= min(ARI) +
-    #                                     .9 * (max(ARI) - min(ARI)))),
-    #            col = "grey", linetype = "dashed", size = 2) +
     labs(y = "Change over merging",
          col = "type")
   return(p)

@@ -16,6 +16,7 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
+    RColorBrewer,
     magrittr,
     parallel,
     clusterExperiment,
@@ -23,7 +24,6 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
-    RColorBrewer,
     testthat (>= 2.1.0)
 VignetteBuilder: knitr
 Depends: R (>= 3.6)
