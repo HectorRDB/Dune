@@ -43,25 +43,31 @@ ARIImp <- function(merger, unclustered = NULL) {
 #' clusterConversion(merger)[[2]]
 #' @export
 clusterConversion <- function(merger, p = 1, n_steps = NULL) {
-  # Compute ARI imp and find where to stop the merge
-  merges <- merger$merges
-  if (is.null(n_steps)) {
-    j <- whenToStop(merger, p = p)
+  if (p == 0 | (!is.null(n_steps) && n_steps == 0)) {
+    updates <- lapply(merger$initialMat, function(clusters){
+      return(data.frame(old = unique(clusters), new = unique(clusters)))
+    })
   } else {
-    j <- n_steps
+  # Compute ARI imp and find where to stop the merge
+    merges <- merger$merges
+    if (is.null(n_steps)) {
+      j <- whenToStop(merger, p = p)
+    } else {
+      j <- n_steps
+    }
+    merges <- merges[1:j, ]
+    updates <- lapply(seq_len(ncol(merger$initialMat)), function(clusLab){
+      clusters <- unique(merger$initialMat[, clusLab])
+      update <- data.frame(old = clusters, new = clusters)
+      return(update)
+    })
+    walk(seq_len(nrow(merges)), function(i) {
+      clusLab <- merges[i, 1]
+      clus <- max(merges[i, 2:3])
+      id <- updates[[clusLab]]$new == clus
+      updates[[clusLab]][id, "new"] <<- min(merges[i, 2:3])
+    })
   }
-  merges <- merges[1:j, ]
-  updates <- lapply(seq_len(ncol(merger$initialMat)), function(clusLab){
-    clusters <- unique(merger$initialMat[, clusLab])
-    update <- data.frame(old = clusters, new = clusters)
-    return(update)
-  })
-  walk(seq_len(nrow(merges)), function(i) {
-    clusLab <- merges[i, 1]
-    clus <- max(merges[i, 2:3])
-    id <- updates[[clusLab]]$new == clus
-    updates[[clusLab]][id, "new"] <<- min(merges[i, 2:3])
-  })
   return(updates)
 }
 
