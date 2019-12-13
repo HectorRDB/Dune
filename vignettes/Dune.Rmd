@@ -96,7 +96,12 @@ We can also see how the number of clusters got reduced.
 plotPrePost(merger)
 ```
 
-For SC3 for example, we can visualize how
+For SC3 for example, we can visualize how the clusters got merged:
+
+```{r}
+ConfusionPlot(merger$initialMat[, "SC3"], merger$currentMat[, "SC3"]) +
+  labs(x = "Before merging", y = "After merging")
+```
 
 Finally, the ARIImp function tracks mean ARI improvement as pairs of clusters get merged down.
 
