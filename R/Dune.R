@@ -66,7 +66,11 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
           })
         }) - bestARI[clusLabel, -clusLabel]
 
-        return(colMeans(deltaARI))
+        if(is.null(dim(deltaARI))){
+          return(deltaARI)
+        } else {
+          return(colMeans(deltaARI))
+        }
       },
       mc.cores = nCores
     )
