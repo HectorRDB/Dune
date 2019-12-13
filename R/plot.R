@@ -134,7 +134,7 @@ ARItrend <- function(merger, unclustered = NULL) {
 #' @importFrom RColorBrewer brewer.pal
 #' @examples
 #' data("nuclei", package = "Dune")
-#' ConfusionPlot(clusMat[, c("SC3", "Monocle")])
+#' ConfusionPlot(nuclei[, c("SC3", "Monocle")])
 #' @export
 #' @import ggplot2
 
