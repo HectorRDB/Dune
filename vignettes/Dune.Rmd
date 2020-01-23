@@ -114,11 +114,11 @@ ARItrend(merger)
 We also provide a animated version of the confusion plots and pairwise ARI as merging happens, relying on the [gganimate](https://gganimate.com/index.html) package. Those are not run to limit package size but you can use this 
 
 ```{r, eval = FALSE}
-ConfusionEvolution(merger, x = "SC3", y = "Monocle")
+ConfusionEvolution(merger, x = "SC3", y = "Monocle", state_length = 2)
 ```
 
 ```{r, eval = FALSE}
-ARIEvolution(merger, x = "SC3", y = "Monocle")
+ARIEvolution(merger)
 ```
 
 # Session

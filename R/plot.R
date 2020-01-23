@@ -273,8 +273,8 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
       as.matrix()
     df <- table(x = clusMat[, x], y = clusMat[, y]) %>%
       as.data.frame() %>%
-      mutate(x = as.character(x),
-             y = as.character(y)) %>%
+      mutate(x = as.numeric(x),
+             y = as.numeric(y)) %>%
       group_by(x) %>%
       mutate(total_x = sum(Freq),
              step = step) %>%
@@ -286,8 +286,8 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
       arrange(desc(Freq)) %>%
       filter(Freq > 0)
   })
-  Freqs$x <- factor(Freqs$x, levels = 1:n_distinct(Freqs$x))
-  Freqs$y <- factor(Freqs$y, levels = 1:n_distinct(Freqs$y))
+  Freqs$x <- factor(Freqs$x, levels = sort(unique(Freqs$x)))
+  Freqs$y <- factor(Freqs$y, levels = sort(unique(Freqs$y)))
 
   p <- ggplot(Freqs, aes(x = x, y = y, col = overlap, size = Freq)) +
     geom_point() +
