@@ -273,8 +273,8 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
       as.matrix()
     df <- table(x = clusMat[, x], y = clusMat[, y]) %>%
       as.data.frame() %>%
-      mutate(x = as.character(x),
-             y = as.character(y)) %>%
+      mutate(x = as.numeric(x),
+             y = as.numeric(y)) %>%
       group_by(x) %>%
       mutate(total_x = sum(Freq),
              step = step) %>%
