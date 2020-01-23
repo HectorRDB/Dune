@@ -117,6 +117,10 @@ We also provide a animated version of the confusion plots and pairwise ARI as me
 ConfusionEvolution(merger, x = "SC3", y = "Monocle")
 ```
 
+```{r, eval = FALSE}
+ARIEvolution(merger, x = "SC3", y = "Monocle")
+```
+
 # Session
 
 ```{r}

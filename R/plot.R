@@ -181,6 +181,8 @@ ConfusionPlot <- function(x, y = NULL) {
 #' Plot the evolution of the pairwise ARIs as merging
 #' happens
 #'
+#' Animated version of \code{\link{plotARIs}}
+#'
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
 #' @param unclustered The value assigned to unclustered cells. Default to
@@ -204,7 +206,6 @@ ConfusionPlot <- function(x, y = NULL) {
 #'   merger <- Dune(clusMat = clusMat)
 #'   ARIEvolution(merger)}
 #' @export
-
 ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
                             numericalLabels = FALSE, state_length = 1) {
   ARI_matrices <- purrr::map_df(0:length(merger$ImpARI), function(step){
@@ -245,6 +246,7 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
 #' Plot the evolution of the ConfusionPlot as merging
 #' happens
 #'
+#' Animated version of \code{\link{ConfusionPlot}}
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
 #' @param x The name of the first cluster label to plot
@@ -265,13 +267,14 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
 #'   merger <- Dune(clusMat = clusMat)
 #'   ConfusionEvolution(merger, x = "A", y = "B")}
 #' @export
-
 ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 1) {
   Freqs <- purrr::map_df(0:length(merger$ImpARI), function(step){
     clusMat <- intermediateMat(merger, n_steps = step) %>%
       as.matrix()
     df <- table(x = clusMat[, x], y = clusMat[, y]) %>%
       as.data.frame() %>%
+      mutate(x = as.character(x),
+             y = as.character(y)) %>%
       group_by(x) %>%
       mutate(total_x = sum(Freq),
              step = step) %>%
@@ -283,8 +286,6 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
       arrange(desc(Freq)) %>%
       filter(Freq > 0)
   })
-  Freqs$x <- factor(Freqs$x, levels = unique(Freqs$x))
-  Freqs$y <- factor(Freqs$y, levels = unique(Freqs$y))
 
   p <- ggplot(Freqs, aes(x = x, y = y, col = overlap, size = Freq)) +
     geom_point() +

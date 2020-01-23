@@ -22,8 +22,7 @@ for details.}
 a \code{gganim} object
 }
 \description{
-Plot the evolution of the ConfusionPlot as merging
-happens
+Animated version of \code{\link{ConfusionPlot}}
 }
 \details{
 See \code{\link{ConfusionPlot}} and \code{\link{animate}}.

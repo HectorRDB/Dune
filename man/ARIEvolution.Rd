@@ -31,8 +31,7 @@ for details.}
 a \code{gganim} object
 }
 \description{
-Plot the evolution of the pairwise ARIs as merging
-happens
+Animated version of \code{\link{plotARIs}}
 }
 \details{
 See \code{\link{plotARIs}} and \code{\link{animate}}.
