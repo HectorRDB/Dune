@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{whenToStop}
 \alias{whenToStop}
-\title{ARI Matrix}
+\title{When to Stop}
 \usage{
 whenToStop(merger, p)
 }
@@ -17,7 +17,7 @@ of the final total improvement. Default to 1 (i.e running the full merging).}
 An integer giving the step where to stop.
 }
 \description{
-ARI Matrix
+When to Stop
 }
 \details{
 The \code{\link{Dune}} process improves the mean ARI. This return

@@ -177,3 +177,133 @@ ConfusionPlot <- function(x, y = NULL) {
   return(p)
   }
 
+
+#' Plot the evolution of the pairwise ARIs as merging
+#' happens
+#'
+#' @param merger the result from having run \code{\link{Dune}}
+#'  on the dataset
+#' @param unclustered The value assigned to unclustered cells. Default to
+#' \code{NULL}
+#' @param values Whether to also display the ARI values. Default to TRUE.
+#' @param numericalLabels Whether labels are numerical values. Default to FALSE.
+#' @param state_length Time between steps. Default to 1. See \code{\link{transition_states}}
+#' for details.
+#' @return a \code{gganim} object
+#' @details See \code{\link{plotARIs}} and \code{\link{animate}}.
+#' @importFrom purrr map
+#' @importFrom tidyr gather
+#' @importFrom dplyr mutate n_distinct
+#' @importFrom magrittr %>%
+#' @importFrom RColorBrewer brewer.pal
+#' @import gganimate
+#' @import ggplot2
+#' @examples
+#' \dontrun{
+#'   data("clusMat", package = "Dune")
+#'   merger <- Dune(clusMat = clusMat)
+#'   ARIEvolution(merger)}
+#' @export
+
+ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
+                            numericalLabels = FALSE, state_length = 1) {
+  ARI_matrices <- purrr::map_df(0:length(merger$ImpARI), function(step){
+    ARI <- ARIs(clusMat = intermediateMat(merger, n_steps = step),
+         unclustered = unclustered)
+    ARI <- ARI %>%
+      as.data.frame() %>%
+      dplyr::mutate(label1 = rownames(ARI)) %>%
+      tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1)) %>%
+      dplyr::mutate(step = step)
+  })
+  if (numericalLabels) {
+    ARI_matrices <- ARI_matrices %>%
+      dplyr::mutate(label1 = as.numeric(label1), label2 = as.numeric(label2))
+  }
+  ARI_matrices <- ARI_matrices %>%
+    dplyr::arrange(step)
+  p <- ggplot(ARI_matrices, aes(x = label1, y = label2, fill = ari)) +
+    geom_tile() +
+    scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9, "Spectral"),
+                         limits = c(0, 1)) +
+    theme_classic() +
+    theme(axis.line = element_blank())
+  if (values) {
+    p <- p  +
+      geom_text(aes(label = round(ari, 2)), size = 4) +
+      guides(fill = FALSE)
+  }
+  p <- p +
+  transition_states(step,
+                    transition_length = 0,
+                    state_length =  state_length /
+                          dplyr::n_distinct(ARI_matrices$label1)) +
+    ggtitle(paste0('Step {closest_state} of ', max(ARI_matrices$step)))
+  return(p)
+}
+
+#' Plot the evolution of the ConfusionPlot as merging
+#' happens
+#'
+#' @param merger the result from having run \code{\link{Dune}}
+#'  on the dataset
+#' @param x The name of the first cluster label to plot
+#' @param y The name of the second cluster label to plot
+#' @param state_length Time between steps. Default to 1. See \code{\link{transition_states}}
+#' for details.
+#' @return a \code{gganim} object
+#' @details See \code{\link{ConfusionPlot}} and \code{\link{animate}}.
+#' @importFrom purrr map
+#' @import tidyr dplyr
+#' @importFrom magrittr %>%
+#' @importFrom RColorBrewer brewer.pal
+#' @import ggplot2
+#' @import gganimate
+#' @examples
+#' \dontrun{
+#'   data("clusMat", package = "Dune")
+#'   merger <- Dune(clusMat = clusMat)
+#'   ConfusionEvolution(merger, x = "A", y = "B")}
+#' @export
+
+ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 1) {
+  Freqs <- purrr::map_df(0:length(merger$ImpARI), function(step){
+    clusMat <- intermediateMat(merger, n_steps = step) %>%
+      as.matrix()
+    df <- table(x = clusMat[, x], y = clusMat[, y]) %>%
+      as.data.frame() %>%
+      group_by(x) %>%
+      mutate(total_x = sum(Freq),
+             step = step) %>%
+      group_by(y) %>%
+      mutate(total_y = sum(Freq),
+             union = total_x + total_y - Freq,
+             overlap = Freq / union) %>%
+      ungroup() %>%
+      arrange(desc(Freq)) %>%
+      filter(Freq > 0)
+  })
+  Freqs$x <- factor(Freqs$x, levels = unique(Freqs$x))
+  Freqs$y <- factor(Freqs$y, levels = unique(Freqs$y))
+
+  p <- ggplot(Freqs, aes(x = x, y = y, col = overlap, size = Freq)) +
+    geom_point() +
+    theme_bw() +
+    theme(legend.position = "top",
+          rect = element_blank(),
+          panel.border = element_blank(),
+          legend.box.spacing = unit(0, units = "npc"),
+          legend.margin	=  margin(r = .1, l = .1, unit = "npc")) +
+    NULL +
+    labs(col = "% of Overlap", size = "# of Cells") +
+    scale_color_gradientn(colours = RColorBrewer::brewer.pal(11, "Spectral")) +
+    guides(size = guide_legend(title.position = "top", fill = "grey"),
+           col = guide_colourbar(title.position = "top",
+                                 barwidth = unit(.2, "npc")))
+  p <- p +
+    transition_states(step,
+                      transition_length = 0,
+                      state_length =  state_length / table(Freqs$step)[1]) +
+    ggtitle(paste0('Step {closest_state} of ', max(Freqs$step)))
+  return(p)
+}

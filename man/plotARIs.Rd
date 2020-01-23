@@ -4,8 +4,7 @@
 \alias{plotARIs}
 \title{Plot an heatmap of the ARI matrix}
 \usage{
-plotARIs(clusMat, unclustered = NULL, values = TRUE,
-  numericalLabels = FALSE)
+plotARIs(clusMat, unclustered = NULL, values = TRUE, numericalLabels = FALSE)
 }
 \arguments{
 \item{clusMat}{The clustering matrix with a row per cell and a column per

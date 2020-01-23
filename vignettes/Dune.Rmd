@@ -108,3 +108,17 @@ Finally, the ARIImp function tracks mean ARI improvement as pairs of clusters ge
 ```{r}
 ARItrend(merger)
 ```
+
+# Animation
+
+We also provide a animated version of the confusion plots and pairwise ARI as merging happens, relying on the [gganimate](https://gganimate.com/index.html) package. Those are not run to limit package size but you can use this 
+
+```{r, eval = FALSE}
+ConfusionEvolution(merger, x = "SC3", y = "Monocle")
+```
+
+# Session
+
+```{r}
+sessionInfo()
+```

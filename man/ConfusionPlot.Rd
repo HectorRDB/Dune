@@ -19,5 +19,5 @@ A plot to visualize how alike two clustering labels are
 }
 \examples{
 data("nuclei", package = "Dune")
-ConfusionPlot(clusMat[, c("SC3", "Monocle")])
+ConfusionPlot(nuclei[, c("SC3", "Monocle")])
 }
