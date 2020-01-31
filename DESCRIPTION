@@ -24,8 +24,7 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 2.1.0),
-    gganimate
+    testthat (>= 2.1.0)
 VignetteBuilder: knitr
 Depends: R (>= 3.6)
 biocViews:

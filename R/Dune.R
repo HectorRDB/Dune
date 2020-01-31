@@ -6,6 +6,7 @@
 #' @param nCores number of cores to use when parallelizing. Relies on
 #' \code{\link{mclapply}}. Default to 1.
 #' @param verbose Whether or not the print cluster merging as it happens.
+#' @param keepAll Whether to keep all intermediary matrices. Default to FALSE.
 #' @return A list with four components: the initial matrix of clustering labels,
 #'  the final matrix of clustering labels, the merge info matrix and the ARI
 #'  improvement vector.
@@ -33,7 +34,7 @@
 #' merger2$merges
 #' @export
 Dune <- function(clusMat, unclustered = NULL, nCores = 1,
-                 verbose = FALSE) {
+                 verbose = FALSE, keepAll = FALSE) {
   # Initialize the values
   clusters <- lapply(seq_len(ncol(clusMat)), function(clus) {
     unique(clusMat[, clus])
@@ -43,6 +44,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
   working <- TRUE
   merges <- NULL
   ImpARI <- NULL
+  intermediary <- list(NULL)
 
   # Try to see if any merge would increse
   while (working) {
@@ -66,7 +68,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
           })
         }) - bestARI[clusLabel, -clusLabel]
 
-        if(is.null(dim(deltaARI))){
+        if (is.null(dim(deltaARI))) {
           return(deltaARI)
         } else {
           return(colMeans(deltaARI))
@@ -74,6 +76,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
       },
       mc.cores = nCores
     )
+    if (keepAll) intermediary[[length(intermediary) + 1]] <- mergeResults
 
     # Find best pair to merge
     maxs <- sapply(mergeResults, max)
@@ -116,10 +119,15 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1,
     stop("This resulted in no merges. Check input cluster labels")
   }
   colnames(merges) <- c("clusteringLabel", "cluster1", "cluster2")
-  return(list(
+  merger <- list(
     "initialMat" = clusMat,
     "currentMat" = as.data.frame(currentMat),
     "merges" = as.data.frame(merges),
     "ImpARI" = ImpARI
-  ))
+  )
+
+  if (keepAll) {
+    merger$intermediary <- intermediary
+  }
+  return(merger)
 }

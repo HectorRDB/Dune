@@ -46,7 +46,7 @@ walk(c("SC3", "Seurat", "Monocle"), function(clus_algo){
   df$clus_algo <- nuclei[, clus_algo]
   p <- ggplot(df, aes(x = x, y = y, col = as.character(clus_algo))) +
     geom_point() +
-    guides(color = FALSE) +
+    # guides(color = FALSE) +
     labs(title = clus_algo)
   print(p)
 })
@@ -69,7 +69,7 @@ We can now try to merge clusters with the `Dune` function. At each step, the alg
 
 ```{r}
 merger <- Dune(clusMat = nuclei %>% select(SC3, Seurat, Monocle),
-               verbose = TRUE)
+               verbose = TRUE, keepAll = TRUE)
 ```
 
 The output from `Dune` is a list with four compoments:
