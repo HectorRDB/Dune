@@ -96,6 +96,7 @@ ARItrend <- function(merger, unclustered = NULL) {
   ARI <- ARIImp(merger, unclustered = unclustered)
   n_clus <- lapply(1:nrow(merger$merges), function(m){
     diff <- rep(0, ncol(baseMat))
+    names(diff) <- colnames(merger$initialMat)
     diff[merger$merges[m, 1]] <- -1
     matrix(diff, nrow = 1)
   }) %>%
@@ -118,7 +119,7 @@ ARItrend <- function(merger, unclustered = NULL) {
     scale_x_continuous(breaks = c(0, length(merger$ImpARI)),
                        labels = c("Initial", "Final")) +
     labs(y = "Change over merging",
-         col = "type")
+         col = "Type")
   return(p)
 }
 

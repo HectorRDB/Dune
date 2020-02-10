@@ -4,7 +4,7 @@
 \alias{Dune}
 \title{Perform the ARI merging}
 \usage{
-Dune(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE, keepAll = FALSE)
+Dune(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE)
 }
 \arguments{
 \item{clusMat}{the matrix of samples by clustering labels.}

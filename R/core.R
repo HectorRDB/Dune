@@ -103,10 +103,18 @@ intermediateMat <- function(merger, p = 1, n_steps = NULL) {
   newMat <- full_join(oldToNew, initialMat,
                       by = c("old" = "old", "cluster_label" = "cluster_label")) %>%
     dplyr::select(cluster_label, new, cells) %>%
-    tidyr::pivot_wider(names_from = "cluster_label", values_from = "new") %>%
+    dplyr::mutate(new = as.integer(new)) %>%
+    tidyr::pivot_wider(names_from = "cluster_label", values_from = "new")
+  if (is.numeric(rownames(initialMat))) {
+    newMat <- newMat %>%
+      dplyr::mutate(cells = as.numeric(cells))
+  }
+  newMat <- newMat %>%
     dplyr::arrange(cells)
   suppressWarnings(rownames(newMat) <- newMat$cells)
-  newMat <- newMat %>% select(-cells)
+  newMat <- newMat %>%
+    dplyr::select(-cells)
+
   return(newMat)
 }
 
