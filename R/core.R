@@ -15,8 +15,7 @@
 ARIImp <- function(merger, unclustered = NULL) {
   baseARI <- ARIs(merger$initialMat, unclustered = unclustered)
   # Normalize the impARI so that we take the mean over the same values.
-  ARI <- merger$ImpARI *
-    (ncol(merger$initialMat) - 1) / sum(upper.tri(baseARI))
+  ARI <- merger$ImpARI
   baseARI <- baseARI[upper.tri(baseARI)] %>% mean()
   ARI <- c(baseARI, ARI)
   ARI <- cumsum(ARI)
@@ -56,16 +55,18 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
       j <- n_steps
     }
     merges <- merges[1:j, ]
-    updates <- lapply(seq_len(ncol(merger$initialMat)), function(clusLab){
+    updates <- lapply(colnames(merger$initialMat), function(clusLab){
       clusters <- unique(merger$initialMat[, clusLab])
       update <- data.frame(old = clusters, new = clusters)
       return(update)
     })
-    walk(seq_len(nrow(merges)), function(i) {
+    names(updates) <- colnames(merger$initialMat)
+    purrr::walk(seq_len(nrow(merges)), function(i) {
       clusLab <- merges[i, 1]
-      clus <- max(merges[i, 2:3])
+      pair <- as.numeric(merges[i, 2:3])
+      clus <- max(pair)
       id <- updates[[clusLab]]$new == clus
-      updates[[clusLab]][id, "new"] <<- min(merges[i, 2:3])
+      updates[[clusLab]][id, "new"] <<- min(pair)
     })
   }
   return(updates)
@@ -97,13 +98,13 @@ intermediateMat <- function(merger, p = 1, n_steps = NULL) {
   oldToNew <- bind_rows(oldToNew, .id = "cluster_label")
   initialMat <- initialMat %>%
     dplyr::mutate(cells = rownames(initialMat)) %>%
-    pivot_longer(cols = colnames(initialMat), values_to = "old",
-                 names_to = "cluster_label")
+    tidyr::pivot_longer(cols = colnames(initialMat), values_to = "old",
+                        names_to = "cluster_label")
   newMat <- full_join(oldToNew, initialMat,
                       by = c("old" = "old", "cluster_label" = "cluster_label")) %>%
-    select(cluster_label, new, cells) %>%
-    pivot_wider(names_from = "cluster_label", values_from = "new") %>%
-    arrange(cells)
+    dplyr::select(cluster_label, new, cells) %>%
+    tidyr::pivot_wider(names_from = "cluster_label", values_from = "new") %>%
+    dplyr::arrange(cells)
   suppressWarnings(rownames(newMat) <- newMat$cells)
   newMat <- newMat %>% select(-cells)
   return(newMat)
