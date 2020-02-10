@@ -23,7 +23,7 @@ assignRsec <- function(merger, p = 1) {
   r2 <- which(colnames(merger$initialMat) == "Rsec")
 
   currentMat <- merger$currentMat
-  Rsec_merges <- merger$merges[1:(K - 1), ]
+  Rsec_merges <- merger$merges[seq_len(K - 1), ]
   Rsec_merges <- Rsec_merges[Rsec_merges[,1] == 2, ]
   if (is.null(dim(Rsec_merges))) Rsec_merges <- matrix(Rsec_merges, nrow = 1)
   Rsec_merges <- Rsec_merges[, -1]
@@ -31,10 +31,10 @@ assignRsec <- function(merger, p = 1) {
   if (nrow(Rsec_merges) == 0) {
     return(merger$initialMat$RsecT)
   } else {
-    assign <- lapply(1:nrow(currentMat), function(i) {
+    assign <- lapply(seq_len(nrow(currentMat)), function(i) {
       cell <- merger$initialMat[i, r2]
       cellT <- merger$initialMat[i, r1]
-      for (j in 1:nrow(Rsec_merges)) {
+      for (j in seq_len(nrow(Rsec_merges))) {
         if (cellT %in% Rsec_merges[j, ]) cellT <- min(Rsec_merges[j, ])
       }
       return(cellT)
@@ -54,7 +54,6 @@ assignRsec <- function(merger, p = 1) {
 #' @importFrom clusterExperiment makeConsensus
 #' @importFrom magrittr %>%
 #' @import dplyr
-#' @export
 Consensus <- function(clusMat, large = FALSE, ...) {
   if (!large) {
     cellsConsensus <- suppressWarnings(
@@ -68,8 +67,8 @@ Consensus <- function(clusMat, large = FALSE, ...) {
     df <- clusterExperiment::makeConsensus(t(collapse$smallMat),
                                            proportion = 2/3, minSize = 0, ...)
     df <- df$clustering
-    df <- data.frame(clusters = df, comb = 1:length(df))
-    mapping <- data.frame(samples = 1:nrow(clusMat), comb = collapse$mapping)
+    df <- data.frame(clusters = df, comb = seq_len(length(df)))
+    mapping <- data.frame(samples = seq_len(nrow(clusMat)), comb = collapse$mapping)
     df <- df %>% inner_join(mapping) %>%
       arrange(samples) %>%
       group_by(clusters) %>%

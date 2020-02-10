@@ -11,6 +11,8 @@ ConfusionEvolution(merger, unclustered = NULL, x, y, state_length = 1)
 \item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
+\item{unclustered}{The value assigned to unclustered cells. Default to \code{NULL}}
+
 \item{x}{The name of the first cluster label to plot}
 
 \item{y}{The name of the second cluster label to plot}

@@ -68,8 +68,7 @@ As we can see, the ARI between the three methods is initially quite low.
 We can now try to merge clusters with the `Dune` function. At each step, the algorithm will print which clustering label is merged (by its number, so `1~SC3` and so on), as well as the pair of clusters that get merged.
 
 ```{r}
-merger <- Dune(clusMat = nuclei %>% select(SC3, Seurat, Monocle),
-               verbose = TRUE, keepAll = TRUE)
+merger <- Dune(clusMat = nuclei %>% select(SC3, Seurat, Monocle), verbose = TRUE)
 ```
 
 The output from `Dune` is a list with four compoments:
@@ -107,18 +106,6 @@ Finally, the ARIImp function tracks mean ARI improvement as pairs of clusters ge
 
 ```{r}
 ARItrend(merger)
-```
-
-# Animation
-
-We also provide a animated version of the confusion plots and pairwise ARI as merging happens, relying on the [gganimate](https://gganimate.com/index.html) package. Those are not run to limit package size but you can use this 
-
-```{r, eval = FALSE}
-ConfusionEvolution(merger, x = "SC3", y = "Monocle", state_length = 2)
-```
-
-```{r, eval = FALSE}
-ARIEvolution(merger)
 ```
 
 # Session

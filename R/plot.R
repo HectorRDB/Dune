@@ -94,8 +94,9 @@ plotPrePost <- function(merger) {
 ARItrend <- function(merger, unclustered = NULL) {
   baseMat <- merger$initialMat
   ARI <- ARIImp(merger, unclustered = unclustered)
-  n_clus <- lapply(1:nrow(merger$merges), function(m){
+  n_clus <- lapply(seq_len(nrow(merger$merges)), function(m){
     diff <- rep(0, ncol(baseMat))
+    names(diff) <- colnames(merger$initialMat)
     diff[merger$merges[m, 1]] <- -1
     matrix(diff, nrow = 1)
   }) %>%
@@ -118,7 +119,7 @@ ARItrend <- function(merger, unclustered = NULL) {
     scale_x_continuous(breaks = c(0, length(merger$ImpARI)),
                        labels = c("Initial", "Final")) +
     labs(y = "Change over merging",
-         col = "type")
+         col = "Type")
   return(p)
 }
 
@@ -198,7 +199,7 @@ ConfusionPlot <- function(x, y = NULL) {
 #' @importFrom dplyr mutate n_distinct
 #' @importFrom magrittr %>%
 #' @importFrom RColorBrewer brewer.pal
-#' @import gganimate
+#' @importFrom gganimate transition_states
 #' @import ggplot2
 #' @examples
 #' \dontrun{
@@ -235,10 +236,10 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
       guides(fill = FALSE)
   }
   p <- p +
-  transition_states(step,
-                    transition_length = 0,
-                    state_length =  state_length /
-                          dplyr::n_distinct(ARI_matrices$label1)) +
+  gganimate::transition_states(step,
+                               transition_length = 0,
+                               state_length =  state_length /
+                                 dplyr::n_distinct(ARI_matrices$label1)) +
     ggtitle(paste0('Step {closest_state} of ', max(ARI_matrices$step)))
   return(p)
 }
@@ -249,6 +250,7 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
 #' Animated version of \code{\link{ConfusionPlot}}
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
+#' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
 #' @param x The name of the first cluster label to plot
 #' @param y The name of the second cluster label to plot
 #' @param state_length Time between steps. Default to 1. See \code{\link{transition_states}}
@@ -260,7 +262,7 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
 #' @importFrom magrittr %>%
 #' @importFrom RColorBrewer brewer.pal
 #' @import ggplot2
-#' @import gganimate
+#' @importFrom gganimate transition_states
 #' @examples
 #' \dontrun{
 #'   data("clusMat", package = "Dune")
@@ -304,9 +306,9 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
            col = guide_colourbar(title.position = "top",
                                  barwidth = unit(.2, "npc")))
   p <- p +
-    transition_states(step,
-                      transition_length = 0,
-                      state_length =  state_length / table(Freqs$step)[1]) +
+    gganimate::transition_states(step,
+                                 transition_length = 0,
+                                 state_length =  state_length / table(Freqs$step)[1]) +
     ggtitle(paste0('Step {closest_state} of ', max(Freqs$step)))
   return(p)
 }

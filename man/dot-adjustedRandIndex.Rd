@@ -7,7 +7,7 @@
 .adjustedRandIndex(tab)
 }
 \arguments{
-\item{table}{The confusion matrix}
+\item{tab}{The confusion matrix}
 }
 \value{
 The ARI

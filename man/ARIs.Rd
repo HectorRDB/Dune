@@ -24,3 +24,7 @@ between columns \strong{i} and \strong{j} of the original \code{clusMat}.
 If \code{unclustered} is not NULL, the cells which have been assigned to the
 \code{unclustered} cluster will not be counted towards computing the ARI.
 }
+\examples{
+data("clusMat", package = "Dune")
+ARIs(clusMat)
+}
