@@ -15,8 +15,6 @@ Dune(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE)
 \code{\link{mclapply}}. Default to 1.}
 
 \item{verbose}{Whether or not the print cluster merging as it happens.}
-
-\item{keepAll}{Whether to keep all intermediary matrices. Default to FALSE.}
 }
 \value{
 A list with four components: the initial matrix of clustering labels,

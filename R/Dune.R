@@ -6,7 +6,6 @@
 #' @param nCores number of cores to use when parallelizing. Relies on
 #' \code{\link{mclapply}}. Default to 1.
 #' @param verbose Whether or not the print cluster merging as it happens.
-#' @param keepAll Whether to keep all intermediary matrices. Default to FALSE.
 #' @return A list with four components: the initial matrix of clustering labels,
 #'  the final matrix of clustering labels, the merge info matrix and the ARI
 #'  improvement vector.

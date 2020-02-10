@@ -23,6 +23,9 @@
 #' If \code{unclustered} is not NULL, the cells which have been assigned to the
 #' \code{unclustered} cluster will not be counted towards computing the ARI.
 #' @importFrom mclust adjustedRandIndex
+#' @examples
+#' data("clusMat", package = "Dune")
+#' ARIs(clusMat)
 #' @export
 ARIs <- function(clusMat, unclustered = NULL) {
   ARI <- apply(clusMat, 2, function(x) {
@@ -68,7 +71,7 @@ whenToStop <- function(merger, p) {
 }
 
 #' @title adjustedRandIndex
-#' @param table The confusion matrix
+#' @param tab The confusion matrix
 #' @return The ARI
 #' @details Second part of the \code{\link{adjustedRandIndex}} function from
 #'  \code{\link{mclust}}.

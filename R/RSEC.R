@@ -54,7 +54,6 @@ assignRsec <- function(merger, p = 1) {
 #' @importFrom clusterExperiment makeConsensus
 #' @importFrom magrittr %>%
 #' @import dplyr
-#' @export
 Consensus <- function(clusMat, large = FALSE, ...) {
   if (!large) {
     cellsConsensus <- suppressWarnings(
