@@ -54,20 +54,27 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
     } else {
       j <- n_steps
     }
-    merges <- merges[1:j, ]
+    merges <- merges[seq_len(j), ]
     updates <- lapply(colnames(merger$initialMat), function(clusLab){
       clusters <- unique(merger$initialMat[, clusLab])
       update <- data.frame(old = clusters, new = clusters)
       return(update)
     })
     names(updates) <- colnames(merger$initialMat)
-    purrr::walk(seq_len(nrow(merges)), function(i) {
+    for (i in seq_len(nrow(merges))) {
       clusLab <- merges[i, 1]
       pair <- as.numeric(merges[i, 2:3])
       clus <- max(pair)
       id <- updates[[clusLab]]$new == clus
-      updates[[clusLab]][id, "new"] <<- min(pair)
-    })
+      updates[[clusLab]][id, "new"] <- min(pair)
+    }
+    # purrr::walk(seq_len(nrow(merges)), function(i) {
+    #   clusLab <- merges[i, 1]
+    #   pair <- as.numeric(merges[i, 2:3])
+    #   clus <- max(pair)
+    #   id <- updates[[clusLab]]$new == clus
+    #   updates[[clusLab]][id, "new"] <<- min(pair)
+    # })
   }
   return(updates)
 }

@@ -41,7 +41,7 @@ ARIs <- function(clusMat, unclustered = NULL) {
     })
   })
   if (is.null(colnames(clusMat))) {
-    rownames(ARI) <- colnames(ARI) <- 1:ncol(clusMat)
+    rownames(ARI) <- colnames(ARI) <- seq_len(ncol(clusMat))
   } else {
     rownames(ARI) <- colnames(ARI) <- colnames(clusMat)
   }

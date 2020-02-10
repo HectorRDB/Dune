@@ -94,7 +94,7 @@ plotPrePost <- function(merger) {
 ARItrend <- function(merger, unclustered = NULL) {
   baseMat <- merger$initialMat
   ARI <- ARIImp(merger, unclustered = unclustered)
-  n_clus <- lapply(1:nrow(merger$merges), function(m){
+  n_clus <- lapply(seq_len(nrow(merger$merges)), function(m){
     diff <- rep(0, ncol(baseMat))
     names(diff) <- colnames(merger$initialMat)
     diff[merger$merges[m, 1]] <- -1
