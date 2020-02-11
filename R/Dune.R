@@ -34,9 +34,11 @@
 #' @export
 Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
   # Initialize the values
+  ## Unique cluster labels for all partitions
   clusters <- lapply(as.data.frame(clusMat, stringsAsFactors = FALSE), unique)
   currentMat <- clusMat
   pairPartitions <- combn(colnames(clusMat), 2)
+  # All confusion matrices with associated partitions and ARIs
   confMats <- lapply(as.data.frame(pairPartitions, stringsAsFactors = FALSE),
                      function(pair){
     C1 <- pair[1]
@@ -47,13 +49,14 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
                 "ARI" = ARI))
   })
 
+  # This is used to keep track of all the info
   working <- TRUE
   merges <- NULL
   ImpARI <- NULL
 
   # Try to see if any merge would increse
   while (working) {
-    # For every cluster label list
+    # For every partition
     mergeResults <- parallel::mclapply(colnames(clusMat), function(C) {
       # Get all pairs of clusters
       clusterNames <- clusters[[C]]
@@ -63,27 +66,35 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
         clusPairs <- combn(clusterNames, 2)
       }
 
-      # For every pair of labels in that list
+      # For every pair of cluster in that list
       deltaARI <- apply(clusPairs, 2, function(pair) {
         m1 <- as.character(min(pair))
         m2 <- as.character(max(pair))
+        # We look at every confusion matrix
         localARIs <- lapply(confMats, function(confMat){
+          # If the confusion matrix is one between C and another partition
           if (confMat$C1 == C) {
             confusionMatrix <- confMat$confusionMatrix
+            # We merge the row
             confusionMatrix[m1, ] <- confusionMatrix[m1, ] +
               confusionMatrix[m2, ]
             confusionMatrix <- confusionMatrix[
               -which(rownames(confusionMatrix) == m2), ]
+            # And we update the ARI
             return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
           } else{
+            # If the confusion matrix is one between another partition and C
             if (confMat$C2 == C)  {
               confusionMatrix <- confMat$confusionMatrix
+              # We merge the columns
               confusionMatrix[, m1] <- confusionMatrix[, m1] +
                 confusionMatrix[, m2]
               confusionMatrix <- confusionMatrix[,
                                       -which(colnames(confusionMatrix) == m2)]
+              # And we update the ARI
               return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
             } else {
+              # Otherwise, nothing happens in that confusion matrix
               return(0)
             }
           }
@@ -91,6 +102,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
         localARIs <- unlist(localARIs)
       })
 
+      # Needed for the cases with only two partitions
       if (is.null(dim(deltaARI))) {
         return(deltaARI)
       } else {
@@ -103,7 +115,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
 
     # Only merge if it improves ARI
     if (max(maxs) > 0) {
-      # Find the cluster label where we merge
+      # Find the partition where we merge
       clusLabel <- colnames(clusMat)[which.max(maxs)]
       # Find the two clusters to merge
       clusterNames <- clusters[[clusLabel]]
@@ -147,7 +159,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
         return(updatedConfMat)
       })
 
-      # tracking
+      # Tracking
       merges <- rbind(merges, c(clusLabel, pair))
       ImpARI <- c(ImpARI, max(maxs))
       if (verbose) {
