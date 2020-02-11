@@ -170,7 +170,7 @@ ConfusionPlot <- function(x, y = NULL) {
           legend.box.spacing = unit(0, units = "npc"),
           legend.margin	=  margin(r = .1, l = .1, unit = "npc")) +
     NULL +
-    labs(col = "% of Overlap", size = "# of Cells") +
+    labs(col = "Jaccard Index", size = "# of Cells") +
     scale_color_gradientn(colours = brewer.pal(11, "Spectral")) +
     guides(size = guide_legend(title.position = "top", fill = "grey"),
            col = guide_colourbar(title.position = "top",
@@ -300,7 +300,7 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
           legend.box.spacing = unit(0, units = "npc"),
           legend.margin	=  margin(r = .1, l = .1, unit = "npc")) +
     NULL +
-    labs(col = "% of Overlap", size = "# of Cells") +
+    labs(col = "Jaccard Index", size = "# of Cells") +
     scale_color_gradientn(colours = RColorBrewer::brewer.pal(11, "Spectral")) +
     guides(size = guide_legend(title.position = "top", fill = "grey"),
            col = guide_colourbar(title.position = "top",
