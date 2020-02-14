@@ -86,3 +86,95 @@ whenToStop <- function(merger, p) {
   return(ARI)
 }
 
+.confusionMatrices <- function(pairPartitions, currentMat) {
+  confMats <- lapply(
+    as.data.frame(pairPartitions, stringsAsFactors = FALSE),
+    function(pair){
+      C1 <- pair[1]
+      C2 <- pair[2]
+      confusionMatrix <- table(currentMat[, C1], currentMat[, C2])
+      ARI <- .adjustedRandIndex(confusionMatrix)
+      return(list("C1" = C1, "C2" = C2, "confusionMatrix" = confusionMatrix,
+                  "ARI" = ARI))
+    }
+  )
+  return(confMats)
+}
+
+.localARI <- function(pair, confMats, C) {
+  m1 <- as.character(min(pair))
+  m2 <- as.character(max(pair))
+  # We look at every confusion matrix
+  localARIs <- lapply(confMats, function(confMat){
+    # If the confusion matrix is one between C and another partition
+    if (confMat$C1 == C) {
+      confusionMatrix <- confMat$confusionMatrix
+      # We merge the row
+      confusionMatrix[m1, ] <- confusionMatrix[m1, ] +
+        confusionMatrix[m2, ]
+      confusionMatrix <- confusionMatrix[
+        -which(rownames(confusionMatrix) == m2), ]
+      # And we update the ARI
+      return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
+    } else{
+      # If the confusion matrix is one between another partition and C
+      if (confMat$C2 == C)  {
+        confusionMatrix <- confMat$confusionMatrix
+        # We merge the columns
+        confusionMatrix[, m1] <- confusionMatrix[, m1] +
+          confusionMatrix[, m2]
+        confusionMatrix <- confusionMatrix[,
+                                        -which(colnames(confusionMatrix) == m2)]
+        # And we update the ARI
+        return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
+      } else {
+        # Otherwise, nothing happens in that confusion matrix
+        return(0)
+      }
+    }
+  })
+  localARIs <- unlist(localARIs)
+  return(localARIs)
+}
+
+.updatedConfMats <- function(pair, confMats, clusLabel) {
+  m1 <- as.character(min(pair))
+  m2 <- as.character(max(pair))
+  updatedConfMats <- lapply(confMats, function(confMat){
+    updatedConfMat <- confMat
+    if (confMat$C1 == clusLabel) {
+      confusionMatrix <- confMat$confusionMatrix
+      confusionMatrix[m1, ] <- confusionMatrix[m1, ] +
+        confusionMatrix[m2, ]
+      confusionMatrix <- confusionMatrix[
+        -which(rownames(confusionMatrix) == m2), ]
+      # If we have merged all, make sure it stays in matrix format
+      if (!is.matrix(confusionMatrix)) {
+        confusionMatrix <- matrix(confusionMatrix, nrow = 1)
+        rownames(confusionMatrix) <- m1
+        colnames(confusionMatrix) <- colnames(confMat$confusionMatrix)
+      }
+      updatedConfMat$confusionMatrix <- confusionMatrix
+      updatedConfMat$ARI <- .adjustedRandIndex(confusionMatrix)
+    } else{
+      if (confMat$C2 == clusLabel) {
+        confusionMatrix <- confMat$confusionMatrix
+        confusionMatrix[, m1] <- confusionMatrix[, m1] +
+          confusionMatrix[, m2]
+        confusionMatrix <- confusionMatrix[,
+                                           -which(colnames(confusionMatrix) == m2)]
+        # If we have merged all, make sure it stays in matrix format
+        if (!is.matrix(confusionMatrix)) {
+          confusionMatrix <- matrix(confusionMatrix, ncol = 1)
+          colnames(confusionMatrix) <- m1
+          rownames(confusionMatrix) <- rownames(confMat$confusionMatrix)
+        }
+        updatedConfMat$confusionMatrix <- confusionMatrix
+        updatedConfMat$ARI <- .adjustedRandIndex(confusionMatrix)
+      }}
+    return(updatedConfMat)
+  })
+  return(updatedConfMats)
+
+}
+

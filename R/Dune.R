@@ -35,19 +35,13 @@
 Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
   # Initialize the values
   ## Unique cluster labels for all partitions
-  clusters <- lapply(as.data.frame(clusMat, stringsAsFactors = FALSE), unique)
   currentMat <- clusMat
-  pairPartitions <- combn(colnames(clusMat), 2)
+  if (is.null(colnames(clusMat))) colnames(currentMat) <- seq_len(ncol(clusMat))
+  clusters <- lapply(as.data.frame(currentMat, stringsAsFactors = FALSE),
+                     unique)
+  pairPartitions <- combn(colnames(currentMat), 2)
   # All confusion matrices with associated partitions and ARIs
-  confMats <- lapply(as.data.frame(pairPartitions, stringsAsFactors = FALSE),
-                     function(pair){
-    C1 <- pair[1]
-    C2 <- pair[2]
-    confusionMatrix <- table(clusMat[, C1], clusMat[, C2])
-    ARI <- .adjustedRandIndex(confusionMatrix)
-    return(list("C1" = C1, "C2" = C2, "confusionMatrix" = confusionMatrix,
-                "ARI" = ARI))
-  })
+  confMats <- .confusionMatrices(pairPartitions, currentMat)
 
   # This is used to keep track of all the info
   working <- TRUE
@@ -57,50 +51,24 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
   # Try to see if any merge would increse
   while (working) {
     # For every partition
-    mergeResults <- parallel::mclapply(colnames(clusMat), function(C) {
+    mergeResults <- parallel::mclapply(colnames(currentMat), function(C) {
       # Get all pairs of clusters
       clusterNames <- clusters[[C]]
       if (!is.null(unclustered)) {
+        if (length(clusterNames[clusterNames != unclustered]) == 1) {
+          return(rep(0, length(confMats)))
+        }
         clusPairs <- combn(clusterNames[clusterNames != unclustered], 2)
       } else {
+        if (length(clusterNames) == 1) {
+          return(rep(0, length(confMats)))
+        }
         clusPairs <- combn(clusterNames, 2)
       }
 
-      # For every pair of cluster in that list
-      deltaARI <- apply(clusPairs, 2, function(pair) {
-        m1 <- as.character(min(pair))
-        m2 <- as.character(max(pair))
-        # We look at every confusion matrix
-        localARIs <- lapply(confMats, function(confMat){
-          # If the confusion matrix is one between C and another partition
-          if (confMat$C1 == C) {
-            confusionMatrix <- confMat$confusionMatrix
-            # We merge the row
-            confusionMatrix[m1, ] <- confusionMatrix[m1, ] +
-              confusionMatrix[m2, ]
-            confusionMatrix <- confusionMatrix[
-              -which(rownames(confusionMatrix) == m2), ]
-            # And we update the ARI
-            return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
-          } else{
-            # If the confusion matrix is one between another partition and C
-            if (confMat$C2 == C)  {
-              confusionMatrix <- confMat$confusionMatrix
-              # We merge the columns
-              confusionMatrix[, m1] <- confusionMatrix[, m1] +
-                confusionMatrix[, m2]
-              confusionMatrix <- confusionMatrix[,
-                                      -which(colnames(confusionMatrix) == m2)]
-              # And we update the ARI
-              return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
-            } else {
-              # Otherwise, nothing happens in that confusion matrix
-              return(0)
-            }
-          }
-        })
-        localARIs <- unlist(localARIs)
-      })
+      # For every pair of cluster in that list, compute how the ARI change if
+      # we merge
+      deltaARI <- apply(clusPairs, 2, .localARI, confMats = confMats, C = C)
 
       # Needed for the cases with only two partitions
       if (is.null(dim(deltaARI))) {
@@ -116,7 +84,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
     # Only merge if it improves ARI
     if (max(maxs) > 0) {
       # Find the partition where we merge
-      clusLabel <- colnames(clusMat)[which.max(maxs)]
+      clusLabel <- colnames(currentMat)[which.max(maxs)]
       # Find the two clusters to merge
       clusterNames <- clusters[[clusLabel]]
       if (!is.null(unclustered)) {
@@ -134,31 +102,7 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
         clusters[[clusLabel]][clusters[[clusLabel]] != max(pair)]
 
       # Update the confusion matrices
-      m1 <- as.character(min(pair))
-      m2 <- as.character(max(pair))
-      confMats <- lapply(confMats, function(confMat){
-        updatedConfMat <- confMat
-        if (confMat$C1 == clusLabel) {
-          confusionMatrix <- confMat$confusionMatrix
-          confusionMatrix[m1, ] <- confusionMatrix[m1, ] +
-            confusionMatrix[m2, ]
-          confusionMatrix <- confusionMatrix[
-            -which(rownames(confusionMatrix) == m2), ]
-          updatedConfMat$confusionMatrix <- confusionMatrix
-          updatedConfMat$ARI <- .adjustedRandIndex(confusionMatrix)
-        } else{
-          if (confMat$C2 == clusLabel)  {
-            confusionMatrix <- confMat$confusionMatrix
-            confusionMatrix[, m1] <- confusionMatrix[, m1] +
-              confusionMatrix[, m2]
-            confusionMatrix <- confusionMatrix[,
-                                      -which(colnames(confusionMatrix) == m2)]
-            updatedConfMat$confusionMatrix <- confusionMatrix
-            updatedConfMat$ARI <- .adjustedRandIndex(confusionMatrix)
-          }}
-        return(updatedConfMat)
-      })
-
+      confMats <- .updatedConfMats(pair, confMats, clusLabel)
       # Tracking
       merges <- rbind(merges, c(clusLabel, pair))
       ImpARI <- c(ImpARI, max(maxs))
@@ -170,7 +114,12 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
     }
 
     # If no more to merge in any of them, stop
-    if (sum(sapply(clusters, length) == 1) == length(clusters)) break()
+    if (any(sapply(clusters, length) == 1)) {
+      if (verbose) {
+        print("We merge one of the partition entirely")
+      }
+      break()
+    }
   }
 
   if (is.null(merges)) {
@@ -183,5 +132,8 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
     "merges" = as.data.frame(merges, stringsAsFactors = FALSE),
     "ImpARI" = ImpARI
   )
+  if (is.null(colnames(clusMat))) {
+    colnames(merger$initialMat) <- colnames(currentMat)
+  }
   return(merger)
 }
