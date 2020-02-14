@@ -16,6 +16,7 @@ test_that("Dune correctly picks the best cluster", {
   for (i in 1:10) {
     clusMat <- matrix(sample(1:5, 500, replace = TRUE), ncol = 5)
     merger <- Dune(clusMat)
+    if (nrow(merger$merges) <= 3) next()
     df <- intermediateMat(merger, n_steps = nrow(merger$merges) - 2)
     df <- as.matrix(df)
     init_ARI <- ARIs(df)
