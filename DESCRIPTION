@@ -20,7 +20,6 @@ Imports:
     magrittr,
     parallel,
     gganimate,
-    clusterExperiment,
     purrr
 Suggests: 
     knitr,
