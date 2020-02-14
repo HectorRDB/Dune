@@ -1,3 +1,19 @@
+#' Remove the duplicated cells which belong to the same cluster over all labels.
+#' @param clusMat The clustering matrix with a row per cell and a column per
+#' clustering label type
+#' @return a list containing the reduced matrix and a way to map back to the original
+.dupRemove <- function(clusMat) {
+  whDup <- which(duplicated(t(clusMat)))
+  val <- apply(clusMat, 2, paste, collapse = ",") # all combinations
+  if (length(whDup) > 0) {
+    clusMat <- clusMat[, -whDup, drop = FALSE]
+  }
+  valSm <- apply(clusMat, 2, paste, collapse = ",") # unique combinations
+  ind <- match(val, valSm)
+  return(list(smallMat = clusMat, mapping = ind))
+}
+
+
 #' Assign cells using the assignUnassigned function of RSEC
 #'
 #' By default, RSEC does not assign all cells, leaving those as "-1".
