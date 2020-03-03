@@ -20,10 +20,10 @@ reference:
       - '`plotARIs`'
       - '`plotPrePost`'
   - title: Dynamic visualization
-  desc: "Functions to plot the results and many other tools to compare clusterings in a dynamic format."
-  contents:
-    - '`ARIEvolution`'
-    - '`ConfusionEvolution`'
+    desc: "Functions to plot the results and many other tools to compare clusterings in a dynamic format."
+    contents:
+      - '`ARIEvolution`'
+      - '`ConfusionEvolution`'
   - title: Data
     desc: "The datasets used in examples"
     contents:
