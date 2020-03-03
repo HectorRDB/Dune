@@ -168,7 +168,7 @@ ConfusionPlot <- function(x, y = NULL) {
           rect = element_blank(),
           panel.border = element_blank(),
           legend.box.spacing = unit(0, units = "npc"),
-          legend.margin	=  margin(r = .1, l = .1, unit = "npc")) +
+          legend.margin	= margin(r = .1, l = .1, unit = "npc")) +
     NULL +
     labs(col = "Jaccard Index", size = "# of Cells") +
     scale_color_gradientn(colours = brewer.pal(11, "Spectral")) +
@@ -298,7 +298,7 @@ ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 
           rect = element_blank(),
           panel.border = element_blank(),
           legend.box.spacing = unit(0, units = "npc"),
-          legend.margin	=  margin(r = .1, l = .1, unit = "npc")) +
+          legend.margin	= margin(r = .1, l = .1, unit = "npc")) +
     NULL +
     labs(col = "Jaccard Index", size = "# of Cells") +
     scale_color_gradientn(colours = RColorBrewer::brewer.pal(11, "Spectral")) +
