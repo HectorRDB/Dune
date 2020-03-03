@@ -137,3 +137,4 @@ Dune <- function(clusMat, unclustered = NULL, nCores = 1, verbose = FALSE) {
   }
   return(merger)
 }
+
