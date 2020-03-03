@@ -40,14 +40,15 @@ ggplot(nuclei, aes(x = x, y = y, col = subclass_label)) +
 
 We can also see how the three clustering algorithm partitioned the dataset initially:
 
-```{r}
+```{r, fig.hold='hold', out.width="33%", fig.height=9}
 walk(c("SC3", "Seurat", "Monocle"), function(clus_algo){
   df <- nuclei
   df$clus_algo <- nuclei[, clus_algo]
   p <- ggplot(df, aes(x = x, y = y, col = as.character(clus_algo))) +
-    geom_point() +
+    geom_point(size = 1.5) +
     # guides(color = FALSE) +
-    labs(title = clus_algo)
+    labs(title = clus_algo, col = "clusters") +
+    theme(legend.position = "bottom")
   print(p)
 })
 ```

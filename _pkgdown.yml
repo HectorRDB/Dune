@@ -32,7 +32,7 @@ reference:
   - title: Utilitise
     desc: "Functions used internally for Dune"
     contents:
-      - '`dot-adjustedRandIndex`'
+      - '`.adjustedRandIndex`'
       - '`whenToStop`'
 
 navbar:
