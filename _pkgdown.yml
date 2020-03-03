@@ -1,0 +1,57 @@
+reference:
+  - title: "Dune algorithm"
+    desc: >
+      The core Dune function and associated functions
+    contents:
+      - '`Dune`'
+      - '`ARIs`'
+  - title: Tracking
+    desc: "Functions to track how objects evolve as merging occurs"
+    contents:
+      - '`ARIImp`'
+      - '`clusterConversion`'
+      - '`functionTracking`'
+      - '`intermediateMat`'
+  - title: Static visualization
+    desc: "Functions to plot the results and many other tools to compare clusterings."
+    contents:
+      - '`ARItrend`'
+      - '`ConfusionPlot`'
+      - '`plotARIs`'
+      - '`plotPrePost`'
+  - title: Dynamic visualization
+  desc: "Functions to plot the results and many other tools to compare clusterings in a dynamic format."
+  contents:
+    - '`ARIEvolution`'
+    - '`ConfusionEvolution`'
+  - title: Data
+    desc: "The datasets used in examples"
+    contents:
+      - '`clusMat`'
+      - '`nuclei`'
+  - title: Utilitise
+    desc: "Functions used internally for Dune"
+    contents:
+      - '`dot-adjustedRandIndex`'
+      - '`whenToStop`'
+
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - tutorials
+    - news
+    right: github
+  components:
+    home:
+      icon: fa-home fa-lg
+      href: index.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    intro:
+      text: Get started
+      href: articles/Dune.html
