@@ -4,7 +4,9 @@
   [![Build Status](https://travis-ci.com/HectorRDB/Dune.svg?token=zVqScmB6wvrS9ZJSK57p&branch=master)](https://travis-ci.com/HectorRDB/Dune) [![codecov](https://codecov.io/gh/HectorRDB/Dune/branch/master/graph/badge.svg?token=snxfXtj87B)](https://codecov.io/gh/HectorRDB/Dune)
 <!-- badges: end -->
 
-<img src="vignettes/logo.png" width="30%" align="center">
+<p align="center">
+  <img src="vignettes/logo.png" width="30%"/>
+</p>
 
 ## Dune overview
 
