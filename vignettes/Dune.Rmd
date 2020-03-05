@@ -12,6 +12,16 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+# Installation
+
+```{r}
+if (!requireNamespace("devtools", quietly = TRUE)) {
+ install.packages("devtools") 
+}
+devtools::install_github("HectorRDB/Dune")
+```
+
+
 We use a subset of the Allen Smart-Seq nuclei dataset. Run `?Dune::nuclei` for more details on pre-processing.
 
 ```{r setup}
