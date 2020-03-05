@@ -28,7 +28,7 @@ Suggests:
     rmarkdown,
     testthat (>= 2.1.0)
 VignetteBuilder: knitr
-Depends: R (>= 4.0)
+Depends: R (>= 3.6.1)
 biocViews:
     Clustering,
     GeneExpression,
