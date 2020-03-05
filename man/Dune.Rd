@@ -79,7 +79,8 @@ cluster label that has been merged and the other cluster labels.
 data("clusMat", package = "Dune")
 merger <- Dune(clusMat = clusMat)
 # clusters 11 to 14 from cluster label 5 and 3 are subset of cluster 2 from
-# other cluster labels. Designing cluster 2 as unclustered stops the merge of those.
+# other cluster labels. Designing cluster 2 as unclustered therefore means we
+# do fewer merges.
 merger2 <- Dune(clusMat = clusMat, unclustered = 2)
 merger$merges
 merger2$merges

@@ -12,11 +12,11 @@
     }
     clusPairs <- utils::combn(clusterNames, 2)
   }
-  
+
   # For every pair of cluster in that list, compute how the ARI change if
   # we merge
   deltaARI <- apply(clusPairs, 2, .localARI, confMats = confMats, C = C)
-  
+
   # Needed for the cases with only two partitions
   if (is.null(dim(deltaARI))) {
     return(deltaARI)
@@ -28,7 +28,7 @@
 .Dune <- function(clusMat,
                   unclustered = NULL,
                   verbose = FALSE,
-                  parallel = FALSE, 
+                  parallel = FALSE,
                   BPPARAM = BiocParallel::bpparam()){
   # Initialize the values
   ## Unique cluster labels for all partitions
@@ -52,13 +52,13 @@
       mergeResults <- BiocParallel::bplapply(
         colnames(currentMat), .findMergeResults, clusters = clusters,
         unclustered = unclustered, confMats = confMats, BPPARAM = BPPARAM
-      )  
+      )
     } else {
-      mergeResults <- lapply(colnames(currentMat), .findMergeResults, 
+      mergeResults <- lapply(colnames(currentMat), .findMergeResults,
                              clusters = clusters, unclustered = unclustered,
-                             confMats = confMats)  
+                             confMats = confMats)
     }
-    
+
 
     # Find best pair to merge
     maxs <- sapply(mergeResults, max)
@@ -127,11 +127,11 @@
 #' @param cluster_columns if \code{clusMat} is a \code{\link{SummarizedExperiment}},
 #'  then this defines the columns of \code{colData} that are outputs from a clustering algorithm.
 #' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
-#' @param parallel Logical, defaults to FALSE. 
+#' @param parallel Logical, defaults to FALSE.
 #' Set to TRUE if you want to parallellize the fitting.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
-#'   back-end to be used for computations. 
-#'   See \code{bpparam} in \code{BiocParallel} package for details. 
+#'   back-end to be used for computations.
+#'   See \code{bpparam} in \code{BiocParallel} package for details.
 #'   Won't be used if \code{parallel} is FALSE.
 #' @param verbose Whether or not the print cluster merging as it happens.
 #' @return A list with four components: the initial matrix of clustering labels,
@@ -155,7 +155,8 @@
 #' data("clusMat", package = "Dune")
 #' merger <- Dune(clusMat = clusMat)
 #' # clusters 11 to 14 from cluster label 5 and 3 are subset of cluster 2 from
-#' # other cluster labels. Designing cluster 2 as unclustered stops the merge of those.
+#' # other cluster labels. Designing cluster 2 as unclustered therefore means we
+#' # do fewer merges.
 #' merger2 <- Dune(clusMat = clusMat, unclustered = 2)
 #' merger$merges
 #' merger2$merges
