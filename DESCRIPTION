@@ -1,6 +1,6 @@
 Package: Dune
 Title: ARI-Merging
-Version: 0.99.03
+Version: 0.99.04
 Authors@R: c(person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
                    email = "hector.rouxdebezieux@berkeley.edu",
 		   comment = c(ORCID = "0000-0002-1489-8339")),
@@ -28,7 +28,7 @@ Suggests:
     rmarkdown,
     testthat (>= 2.1.0)
 VignetteBuilder: knitr
-Depends: R (>= 3.6)
+Depends: R (>= 4.0)
 biocViews:
     Clustering,
     GeneExpression,
