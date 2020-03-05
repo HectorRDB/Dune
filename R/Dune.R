@@ -1,6 +1,34 @@
+.findMergeResults <- function(C, clusters, unclustered, confMats) {
+  # Get all pairs of clusters
+  clusterNames <- clusters[[C]]
+  if (!is.null(unclustered)) {
+    if (length(clusterNames[clusterNames != unclustered]) == 1) {
+      return(rep(0, length(confMats)))
+    }
+    clusPairs <- utils::combn(clusterNames[clusterNames != unclustered], 2)
+  } else {
+    if (length(clusterNames) == 1) {
+      return(rep(0, length(confMats)))
+    }
+    clusPairs <- utils::combn(clusterNames, 2)
+  }
+  
+  # For every pair of cluster in that list, compute how the ARI change if
+  # we merge
+  deltaARI <- apply(clusPairs, 2, .localARI, confMats = confMats, C = C)
+  
+  # Needed for the cases with only two partitions
+  if (is.null(dim(deltaARI))) {
+    return(deltaARI)
+  } else {
+    return(colMeans(deltaARI))
+  }
+}
+
 .Dune <- function(clusMat,
                   unclustered = NULL,
                   verbose = FALSE,
+                  parallel = FALSE, 
                   BPPARAM = BiocParallel::bpparam()){
   # Initialize the values
   ## Unique cluster labels for all partitions
@@ -20,32 +48,17 @@
   # Try to see if any merge would increse
   while (working) {
     # For every partition
-    mergeResults <- BiocParallel::bplapply(colnames(currentMat), function(C) {
-      # Get all pairs of clusters
-      clusterNames <- clusters[[C]]
-      if (!is.null(unclustered)) {
-        if (length(clusterNames[clusterNames != unclustered]) == 1) {
-          return(rep(0, length(confMats)))
-        }
-        clusPairs <- utils::combn(clusterNames[clusterNames != unclustered], 2)
-      } else {
-        if (length(clusterNames) == 1) {
-          return(rep(0, length(confMats)))
-        }
-        clusPairs <- utils::combn(clusterNames, 2)
-      }
-
-      # For every pair of cluster in that list, compute how the ARI change if
-      # we merge
-      deltaARI <- apply(clusPairs, 2, .localARI, confMats = confMats, C = C)
-
-      # Needed for the cases with only two partitions
-      if (is.null(dim(deltaARI))) {
-        return(deltaARI)
-      } else {
-        return(colMeans(deltaARI))
-      }
-    }, BPPARAM = BPPARAM)
+    if (parallel) {
+      mergeResults <- BiocParallel::bplapply(
+        colnames(currentMat), .findMergeResults, clusters = clusters,
+        unclustered = unclustered, confMats = confMats, BPPARAM = BPPARAM
+      )  
+    } else {
+      mergeResults <- lapply(colnames(currentMat), .findMergeResults, 
+                             clusters = clusters, unclustered = unclustered,
+                             confMats = confMats)  
+    }
+    
 
     # Find best pair to merge
     maxs <- sapply(mergeResults, max)
@@ -111,11 +124,15 @@
 #'
 #' Compute the ARI between every pair of clustering labels after merging every possible pair of clusters. Find the one that improves the ARI merging the most, merge the pair. Repeat until there is no improvement.
 #' @param clusMat the matrix of samples by clustering labels.
-#' @param cluster_columns if \code{clusMat} is a \code{\link{SummarizedExperiment}}, then this defines the columns of \code{colData} that are outputs from a clustering algorithm.
+#' @param cluster_columns if \code{clusMat} is a \code{\link{SummarizedExperiment}},
+#'  then this defines the columns of \code{colData} that are outputs from a clustering algorithm.
 #' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
+#' @param parallel Logical, defaults to FALSE. 
+#' Set to TRUE if you want to parallellize the fitting.
 #' @param BPPARAM object of class \code{bpparamClass} that specifies the
-#'   back-end to be used for computations. See
-#'   \code{bpparam} in \code{BiocParallel} package for details.
+#'   back-end to be used for computations. 
+#'   See \code{bpparam} in \code{BiocParallel} package for details. 
+#'   Won't be used if \code{parallel} is FALSE.
 #' @param verbose Whether or not the print cluster merging as it happens.
 #' @return A list with four components: the initial matrix of clustering labels,
 #'  the final matrix of clustering labels, the merge info matrix and the ARI
@@ -149,6 +166,7 @@ setMethod(f = "Dune",
           definition = function(clusMat,
                                 unclustered = NULL,
                                 verbose = FALSE,
+                                parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam()) {
             merger <- .Dune(clusMat = clusMat, unclustered = unclustered,
                             verbose = verbose, BPPARAM = BPPARAM)
@@ -162,6 +180,7 @@ setMethod(f = "Dune",
           definition = function(clusMat,
                                 unclustered = NULL,
                                 verbose = FALSE,
+                                parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam()) {
             merger <- .Dune(clusMat = clusMat, unclustered = unclustered,
                             verbose = verbose, BPPARAM = BPPARAM)
@@ -178,6 +197,7 @@ setMethod(f = "Dune",
                                 cluster_columns,
                                 unclustered = NULL,
                                 verbose = FALSE,
+                                parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam()) {
             df <- colData(clusMat)
             if (any(!cluster_columns %in% colnames(df))) {
