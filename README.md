@@ -21,7 +21,7 @@ To install the current version of *Dune* , run.
 if(!requireNamespace("devtools", quietly = TRUE)) {
  install.packages("devtools") 
 }
-devtools::install_github("HectorRDB/Dune")
+devtools::install_github("HectorRDB/Dune", ref = "before_bioc_release")
 ```
 
 The installation should only take a few seconds.

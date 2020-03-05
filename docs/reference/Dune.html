@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Perform the ARI merging — Dune • Dune</title>
+<title>Dune — Dune • Dune</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,7 @@
 
 
 
-<meta property="og:title" content="Perform the ARI merging — Dune" />
+<meta property="og:title" content="Dune — Dune" />
 <meta property="og:description" content="Compute the ARI between every pair of clustering labels after merging every possible pair of clusters. Find the one that improves the ARI merging the most, merge the pair. Repeat until there is no improvement." />
 <meta name="twitter:card" content="summary" />
 
@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Dune</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.5</span>
       </span>
     </div>
 
@@ -103,7 +103,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Perform the ARI merging</h1>
+    <h1>Dune</h1>
     
     <div class="hidden name"><code>Dune.Rd</code></div>
     </div>
@@ -112,7 +112,32 @@
     <p>Compute the ARI between every pair of clustering labels after merging every possible pair of clusters. Find the one that improves the ARI merging the most, merge the pair. Repeat until there is no improvement.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>Dune</span>(<span class='no'>clusMat</span>, <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>nCores</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>Dune</span>(<span class='no'>clusMat</span>, <span class='no'>...</span>)
+
+<span class='co'># S4 method for matrix</span>
+<span class='fu'>Dune</span>(
+  <span class='no'>clusMat</span>,
+  <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>()
+)
+
+<span class='co'># S4 method for data.frame</span>
+<span class='fu'>Dune</span>(
+  <span class='no'>clusMat</span>,
+  <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>()
+)
+
+<span class='co'># S4 method for SummarizedExperiment</span>
+<span class='fu'>Dune</span>(
+  <span class='no'>clusMat</span>,
+  <span class='no'>cluster_columns</span>,
+  <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>()
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -122,17 +147,26 @@
       <td><p>the matrix of samples by clustering labels.</p></td>
     </tr>
     <tr>
+      <th>...</th>
+      <td><p>parameters including:</p></td>
+    </tr>
+    <tr>
       <th>unclustered</th>
       <td><p>The value assigned to unclustered cells. Default to <code>NULL</code></p></td>
     </tr>
     <tr>
-      <th>nCores</th>
-      <td><p>number of cores to use when parallelizing. Relies on
-<code>mclapply</code>. Default to 1.</p></td>
-    </tr>
-    <tr>
       <th>verbose</th>
       <td><p>Whether or not the print cluster merging as it happens.</p></td>
+    </tr>
+    <tr>
+      <th>BPPARAM</th>
+      <td><p>object of class <code>bpparamClass</code> that specifies the
+back-end to be used for computations. See
+<code>bpparam</code> in <code>BiocParallel</code> package for details.</p></td>
+    </tr>
+    <tr>
+      <th>cluster_columns</th>
+      <td><p>if <code>clusMat</code> is a <code>SummarizedExperiment</code>, then this defines the columns of <code>colData</code> that are outputs from a clustering algorithm.</p></td>
     </tr>
     </table>
 

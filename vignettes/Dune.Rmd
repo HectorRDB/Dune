@@ -14,11 +14,11 @@ vignette: >
 
 # Installation
 
-```{r}
+```{r, eval = FALSE}
 if (!requireNamespace("devtools", quietly = TRUE)) {
  install.packages("devtools") 
 }
-devtools::install_github("HectorRDB/Dune")
+devtools::install_github("HectorRDB/Dune", ref = "before_bioc_release")
 ```
 
 
