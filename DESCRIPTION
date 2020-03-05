@@ -1,6 +1,6 @@
 Package: Dune
 Title: ARI-Merging
-Version: 0.99.02
+Version: 0.99.03
 Authors@R: c(person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
                    email = "hector.rouxdebezieux@berkeley.edu",
 		   comment = c(ORCID = "0000-0002-1489-8339")),
@@ -12,13 +12,15 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2
 Imports: 
+    BiocParallel,
+    SummarizedExperiment,
     mclust,
+    utils,
     ggplot2,
     dplyr,
     tidyr,
     RColorBrewer,
     magrittr,
-    parallel,
     gganimate,
     purrr
 Suggests: 

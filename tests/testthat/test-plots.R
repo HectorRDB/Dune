@@ -1,3 +1,4 @@
+context("Dune plotting functions do return plots")
 library(Dune)
 library(dplyr)
 

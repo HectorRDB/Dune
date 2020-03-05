@@ -1,3 +1,4 @@
+utils::globalVariables(c("methods", "time"))
 #' Plot an heatmap of the ARI matrix
 #'
 #' We can compute the ARI between pairs of cluster labels. This function plots
@@ -60,11 +61,11 @@ plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
 plotPrePost <- function(merger) {
   pre <- apply(merger$initialMat, 2, function(x) length(unique(x)))
   post <- apply(merger$currentMat, 2, function(x) length(unique(x)))
-  df <- data.frame(methods = names(pre),
-                   before = pre,
-                   after = post) %>%
-    tidyr::gather(key = "time", value = "Nb", -methods) %>%
-    dplyr::mutate(time = factor(time, levels = c("before", "after")))
+  df <- data.frame("methods" = names(pre),
+                   "before" = pre,
+                   "after" = post) %>%
+    tidyr::gather(key = "time", value = "Nb", -"methods") %>%
+    dplyr::mutate("time" = factor(time, levels = c("before", "after")))
   p <- ggplot(df, aes(x = methods, y = Nb, fill = time)) +
     geom_bar(stat = "identity", position = "dodge") +
     theme_classic() +
@@ -194,7 +195,7 @@ ConfusionPlot <- function(x, y = NULL) {
 #' for details.
 #' @return a \code{gganim} object
 #' @details See \code{\link{plotARIs}} and \code{\link{animate}}.
-#' @importFrom purrr map
+#' @importFrom purrr map_df
 #' @importFrom tidyr gather
 #' @importFrom dplyr mutate n_distinct
 #' @importFrom magrittr %>%
@@ -257,7 +258,7 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
 #' for details.
 #' @return a \code{gganim} object
 #' @details See \code{\link{ConfusionPlot}} and \code{\link{animate}}.
-#' @importFrom purrr map
+#' @importFrom purrr map_df
 #' @import tidyr dplyr
 #' @importFrom magrittr %>%
 #' @importFrom RColorBrewer brewer.pal

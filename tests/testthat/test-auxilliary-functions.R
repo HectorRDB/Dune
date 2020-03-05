@@ -1,3 +1,4 @@
+context("Dune auxilliary functions")
 library(Dune)
 library(dplyr)
 

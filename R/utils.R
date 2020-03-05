@@ -1,3 +1,5 @@
+utils::globalVariables(c("new"))
+
 #' @title ARI Matrix
 #' @param clusMat The clustering matrix with a row per cell and a column per
 #' clustering label type

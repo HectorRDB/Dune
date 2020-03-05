@@ -34,7 +34,6 @@ ARIImp <- function(merger, unclustered = NULL) {
 #' @return A list containing a matrix per clustering method, with a column for the old labels
 #' and a column for the new labels.
 #' @importFrom magrittr %>%
-#' @importFrom purrr walk
 #' @importFrom dplyr n_distinct filter
 #' @examples
 #' data("clusMat", package = "Dune")
@@ -68,13 +67,6 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
       id <- updates[[clusLab]]$new == clus
       updates[[clusLab]][id, "new"] <- min(pair)
     }
-    # purrr::walk(seq_len(nrow(merges)), function(i) {
-    #   clusLab <- merges[i, 1]
-    #   pair <- as.numeric(merges[i, 2:3])
-    #   clus <- max(pair)
-    #   id <- updates[[clusLab]]$new == clus
-    #   updates[[clusLab]][id, "new"] <<- min(pair)
-    # })
   }
   return(updates)
 }
@@ -109,8 +101,8 @@ intermediateMat <- function(merger, p = 1, n_steps = NULL) {
                         names_to = "cluster_label")
   newMat <- full_join(oldToNew, initialMat,
                       by = c("old" = "old", "cluster_label" = "cluster_label")) %>%
-    dplyr::select(cluster_label, new, cells) %>%
-    dplyr::mutate(new = as.integer(new)) %>%
+    dplyr::select("cluster_label", "new", "cells") %>%
+    dplyr::mutate("new" = as.integer(new)) %>%
     tidyr::pivot_wider(names_from = "cluster_label", values_from = "new")
   if (is.numeric(rownames(initialMat))) {
     newMat <- newMat %>%

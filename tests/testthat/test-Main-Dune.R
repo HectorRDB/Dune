@@ -1,3 +1,5 @@
+context("Dune's main algorithm works as intended")
+
 library(Dune)
 library(dplyr)
 
@@ -10,6 +12,7 @@ test_that("Dune returns the right type of output", {
   expect_is(merger$currentMat, "data.frame")
   expect_is(merger$merges, "data.frame")
   expect_is(merger$ImpARI, "numeric")
+  expect_output(Dune(clusMat, verbose = TRUE))
 })
 
 test_that("Dune correctly picks the best cluster", {
@@ -32,4 +35,12 @@ test_that("Dune correctly picks the best cluster", {
                     merger$ImpARI[nrow(merger$merges) - 1])
     }
   }
+})
+
+test_that('Dune works correctly for identical inputs',{
+  data("clusMat", package = "Dune")
+  expect_error(Dune(clusMat[,c(1,1)]))
+  expect_output(Dune(cbind(rep(1:3, each = 20), rep(1:2, each = 30)),
+                     verbose = TRUE),
+                regexp = ".*We merge one of the partition entirely")
 })
