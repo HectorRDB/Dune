@@ -13,6 +13,7 @@ Dune(clusMat, ...)
   clusMat,
   unclustered = NULL,
   verbose = FALSE,
+  parallel = FALSE,
   BPPARAM = BiocParallel::bpparam()
 )
 
@@ -20,6 +21,7 @@ Dune(clusMat, ...)
   clusMat,
   unclustered = NULL,
   verbose = FALSE,
+  parallel = FALSE,
   BPPARAM = BiocParallel::bpparam()
 )
 
@@ -28,6 +30,7 @@ Dune(clusMat, ...)
   cluster_columns,
   unclustered = NULL,
   verbose = FALSE,
+  parallel = FALSE,
   BPPARAM = BiocParallel::bpparam()
 )
 }
@@ -40,11 +43,16 @@ Dune(clusMat, ...)
 
 \item{verbose}{Whether or not the print cluster merging as it happens.}
 
-\item{BPPARAM}{object of class \code{bpparamClass} that specifies the
-back-end to be used for computations. See
-\code{bpparam} in \code{BiocParallel} package for details.}
+\item{parallel}{Logical, defaults to FALSE.
+Set to TRUE if you want to parallellize the fitting.}
 
-\item{cluster_columns}{if \code{clusMat} is a \code{\link{SummarizedExperiment}}, then this defines the columns of \code{colData} that are outputs from a clustering algorithm.}
+\item{BPPARAM}{object of class \code{bpparamClass} that specifies the
+back-end to be used for computations.
+See \code{bpparam} in \code{BiocParallel} package for details.
+Won't be used if \code{parallel} is FALSE.}
+
+\item{cluster_columns}{if \code{clusMat} is a \code{\link{SummarizedExperiment}},
+then this defines the columns of \code{colData} that are outputs from a clustering algorithm.}
 }
 \value{
 A list with four components: the initial matrix of clustering labels,
