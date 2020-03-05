@@ -1,6 +1,6 @@
 Package: Dune
 Title: ARI-Merging
-Version: 0.99.08
+Version: 0.99.09
 Authors@R: c(person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
                    email = "hector.rouxdebezieux@berkeley.edu",
 		   comment = c(ORCID = "0000-0002-1489-8339")),
