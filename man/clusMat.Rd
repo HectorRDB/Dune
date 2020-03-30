@@ -4,7 +4,9 @@
 \name{clusMat}
 \alias{clusMat}
 \title{A clustering matrix used to demonstrate the ari-merging process.}
-\format{An object of class \code{matrix} with 100 rows and 5 columns.}
+\format{
+An object of class \code{matrix} with 100 rows and 5 columns.
+}
 \usage{
 clusMat
 }
@@ -15,5 +17,7 @@ A clustering matrix used to demonstrate the ari-merging process.
 This matrix has 100 samples with 5 cluster labels. Cluster labels 2
 trought 5 are modified versions of cluster label 1, where some clusters from
 label 1 where broken down into smaller clusters.
+It is just a toy dataset that can be re-generated with the code in
+https://github.com/HectorRDB/Pipeline_Brain/blob/master/Sandbox/createToyDataset.R
 }
 \keyword{datasets}

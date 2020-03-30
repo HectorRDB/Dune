@@ -4,7 +4,9 @@
 \name{nuclei}
 \alias{nuclei}
 \title{Cluster labels for a subset of the allen Smart-Seq nuclei dataset}
-\format{An object of class \code{data.frame} with 1744 rows and 7 columns.}
+\format{
+An object of class \code{data.frame} with 1744 rows and 7 columns.
+}
 \usage{
 nuclei
 }
@@ -12,7 +14,10 @@ nuclei
 Cluster labels for a subset of the allen Smart-Seq nuclei dataset
 }
 \details{
-This matrix of clusters was obtained by running all those algo then cutting it down
-to the GABAergic neurons. See...
+This matrix of clusters was obtained by running 3 clustering algorithms
+on a brain snRNA-Seq dataset from Tasic et .al (https://doi.org/10.1038/s41586-018-0654-5).
+This dataset was then subsetted to the GABAergic neurons.
+Code to reproduce all this can be found in the github repository from the
+Dune paper (https://github.com/HectorRDB/Dune_Paper).
 }
 \keyword{datasets}

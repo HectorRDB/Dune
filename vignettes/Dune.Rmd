@@ -15,10 +15,10 @@ vignette: >
 # Installation
 
 ```{r, eval = FALSE}
-if (!requireNamespace("devtools", quietly = TRUE)) {
- install.packages("devtools") 
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
 }
-devtools::install_github("HectorRDB/Dune", ref = "before_bioc_release")
+BiocManager::install("Dune")
 ```
 
 
