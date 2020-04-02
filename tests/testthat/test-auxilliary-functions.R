@@ -10,21 +10,30 @@ test_that("functionTracking and ARIImp are coherent", {
     return(mean(ARI[upper.tri(ARI)]))
   }
   expect_equal(ARIImp(merger), functionTracking(merger, f))
+  expect_equal(ARIImp(merger),
+               functionTracking(merger, f, n_steps = length(merger$ImpARI)))
 })
 
 test_that("clusterConversion and intermediateMat are coherent with Dune", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
+  # Same at the end 
   df <- intermediateMat(merger, p = 1)
   df <- df[order(as.numeric(rownames(df))), ]
   expect_equal(df, merger$currentMat)
+  # Same at the beginning
   df <- intermediateMat(merger, p = 0)
   df <- df[order(as.numeric(rownames(df))), ]
   expect_equal(df, merger$initialMat)
+  # Same at the beginning
   df <- intermediateMat(merger, n_steps = 0)
   df <- df[order(as.numeric(rownames(df))), ]
   expect_equal(df, merger$initialMat)
-
+  # Same if rownames
+  rownames(merger$initialMat) <- seq_len(nrow(clusMat))
+  df <- intermediateMat(merger, p = 1)
+  df <- df[order(as.numeric(rownames(df))), ]
+  expect_equal(df, merger$currentMat)
 })
 
 test_that("Dune output", {
@@ -36,10 +45,12 @@ test_that("Dune output", {
     10)
 })
 
-test_that("Plots are returning ggplot objects", {
+test_that("You can only stop between zero and one", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
-  expect_is(plotPrePost(merger), "gg")
-  expect_is(plotARIs(merger$initialMat), "gg")
-  expect_is(ARItrend(merger), "gg")
+  expect_error(whenToStop(merger, -1))
+  expect_error(whenToStop(merger, 2))
+  expect_error(whenToStop(merger, "A"))
 })
+
+

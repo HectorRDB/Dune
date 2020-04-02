@@ -44,3 +44,11 @@ test_that('Dune works correctly for identical inputs',{
                      verbose = TRUE),
                 regexp = ".*We merge one of the partition entirely")
 })
+
+
+test_that('Dune works with unclustered values',{
+  data("clusMat", package = "Dune")
+  merger <- Dune(clusMat, unclustered = -2)
+  merger2 <- Dune(clusMat)
+  expect_identical(merger, merger2)
+})
