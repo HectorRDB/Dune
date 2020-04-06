@@ -1,13 +1,12 @@
 ---
 title: "Vignette for Dune: merging clusters to improve replicability through ARI merging"
 author: "Hector Roux de Bézieux"
-date: "9/13/2019"
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::html_document:
     toc: true
     toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Vignette for **Dune**}
+  %\VignetteIndexEntry{Dune Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -82,7 +81,7 @@ We can now try to merge clusters with the `Dune` function. At each step, the alg
 merger <- Dune(clusMat = nuclei %>% select(SC3, Seurat, Monocle), verbose = TRUE)
 ```
 
-The output from `Dune` is a list with four compoments:
+The output from `Dune` is a list with four components:
 
 ```{r}
 names(merger)
@@ -113,7 +112,7 @@ ConfusionPlot(merger$initialMat[, "SC3"], merger$currentMat[, "SC3"]) +
   labs(x = "Before merging", y = "After merging")
 ```
 
-Finally, the ARIImp function tracks mean ARI improvement as pairs of clusters get merged down.
+Finally, the __ARIImp__ function tracks mean ARI improvement as pairs of clusters get merged down.
 
 ```{r}
 ARItrend(merger)

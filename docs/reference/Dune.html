@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Dune</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.99.15</span>
       </span>
     </div>
 
@@ -119,6 +119,7 @@
   <span class='no'>clusMat</span>,
   <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>()
 )
 
@@ -127,6 +128,7 @@
   <span class='no'>clusMat</span>,
   <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>()
 )
 
@@ -136,6 +138,7 @@
   <span class='no'>cluster_columns</span>,
   <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>BPPARAM</span> <span class='kw'>=</span> <span class='kw pkg'>BiocParallel</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/BiocParallel/man/register.html'>bpparam</a></span>()
 )</pre>
 
@@ -159,14 +162,21 @@
       <td><p>Whether or not the print cluster merging as it happens.</p></td>
     </tr>
     <tr>
+      <th>parallel</th>
+      <td><p>Logical, defaults to FALSE.
+Set to TRUE if you want to parallellize the fitting.</p></td>
+    </tr>
+    <tr>
       <th>BPPARAM</th>
       <td><p>object of class <code>bpparamClass</code> that specifies the
-back-end to be used for computations. See
-<code>bpparam</code> in <code>BiocParallel</code> package for details.</p></td>
+back-end to be used for computations.
+See <code>bpparam</code> in <code>BiocParallel</code> package for details.
+Won't be used if <code>parallel</code> is FALSE.</p></td>
     </tr>
     <tr>
       <th>cluster_columns</th>
-      <td><p>if <code>clusMat</code> is a <code>SummarizedExperiment</code>, then this defines the columns of <code>colData</code> that are outputs from a clustering algorithm.</p></td>
+      <td><p>if <code>clusMat</code> is a <code>SummarizedExperiment</code>,
+then this defines the columns of <code>colData</code> that are outputs from a clustering algorithm.</p></td>
     </tr>
     </table>
 
@@ -197,7 +207,8 @@ cluster label that has been merged and the other cluster labels.</p></li>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"clusMat"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"Dune"</span>)
 <span class='no'>merger</span> <span class='kw'>&lt;-</span> <span class='fu'>Dune</span>(<span class='kw'>clusMat</span> <span class='kw'>=</span> <span class='no'>clusMat</span>)
 <span class='co'># clusters 11 to 14 from cluster label 5 and 3 are subset of cluster 2 from</span>
-<span class='co'># other cluster labels. Designing cluster 2 as unclustered stops the merge of those.</span>
+<span class='co'># other cluster labels. Designing cluster 2 as unclustered therefore means we</span>
+<span class='co'># do fewer merges.</span>
 <span class='no'>merger2</span> <span class='kw'>&lt;-</span> <span class='fu'>Dune</span>(<span class='kw'>clusMat</span> <span class='kw'>=</span> <span class='no'>clusMat</span>, <span class='kw'>unclustered</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 <span class='no'>merger</span>$<span class='no'>merges</span></div><div class='output co'>#&gt;   clusteringLabel cluster1 cluster2
 #&gt; 1               B       11       12

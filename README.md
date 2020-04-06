@@ -15,7 +15,18 @@ Dune is an R Package that provides a parameter-free method for optimizing the tr
 
 ## Installation
 
-To install the current version of *Dune* , run.
+To install the current version of *Dune* , you will need Bioconductor 3.11 (i.e devel version):
+
+```
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
+BiocManager::install("Dune")
+```
+A version compatible with R 3.6 is also available with the following commands:
 
 ```
 if(!requireNamespace("devtools", quietly = TRUE)) {
