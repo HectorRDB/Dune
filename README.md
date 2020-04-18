@@ -8,7 +8,17 @@
   <img src="vignettes/logo.png" width="30%"/>
 </p>
 
-## Dune overview
+## Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [Demo](#demo)
+- [Issues](#Issues-and-bug-reports)
+- [License](./LICENSE.md)
+- [Citation](./inst/CITATION)
+
+
+## Overview
 
 Dune is an R Package that provides a parameter-free method for optimizing the trade-off between the resolutionof the clusters and their replicability across datasets. Dune  method takes as input a set of clustering results on a dataset, and iteratively merges clusters within those clusterings in order to maximize their concordance.  
 
@@ -36,12 +46,14 @@ devtools::install_github("HectorRDB/Dune", ref = "before_bioc_release")
 ```
 
 The installation should only take a few seconds.
-The dependencies of the package are listed in the DESCRIPTION file of the package.
+The dependencies of the package are listed in the DESCRIPTION file of the package. 
+To install R and Bioconductor, please refer to the [Bioconductor install page](https://www.bioconductor.org/install/).
 
 ## Issues and bug reports
 
 Please use the [github issues](https://github.com/HectorRDB/Dune/issues) to submit issues, bug reports, and comments.
 
-## Usage 
+## Demo 
 
 Start with the vignette [online](https://hectorRDB.github.io/Dune/articles/Dune.html).
+
