@@ -56,4 +56,10 @@ Please use the [github issues](https://github.com/HectorRDB/Dune/issues) to subm
 ## Demo 
 
 Start with the vignette [online](https://hectorRDB.github.io/Dune/articles/Dune.html).
+If you want to reproduce the vignette itself, you can use the following code in R: 
 
+```
+browseVignettes(package = "Dune") 
+```
+
+If you build the package from source or from github, this might not work. You can find the code for the vignette [here](./vignettes/Dune.Rmd)
