@@ -18,8 +18,10 @@ test_that("clusterConversion and intermediateMat are coherent with Dune", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
   # Same at the end 
-  df <- intermediateMat(merger, p = 1)
-  df <- df[order(as.numeric(rownames(df))), ]
+  df <- intermediateMat(merger, p = 1) %>%
+    mutate(cells = as.numeric(cells)) %>%
+    arrange(cells) %>%
+    select(-cells)
   expect_equal(df, merger$currentMat)
   # Same at the beginning
   df <- intermediateMat(merger, p = 0)

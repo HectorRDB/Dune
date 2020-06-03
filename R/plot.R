@@ -197,7 +197,7 @@ ConfusionPlot <- function(x, y = NULL) {
 #' @details See \code{\link{plotARIs}} and \code{\link{animate}}.
 #' @importFrom purrr map_df
 #' @importFrom tidyr gather
-#' @importFrom dplyr mutate n_distinct
+#' @importFrom dplyr mutate n_distinct select
 #' @importFrom magrittr %>%
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom gganimate transition_states
@@ -211,8 +211,9 @@ ConfusionPlot <- function(x, y = NULL) {
 ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
                             numericalLabels = FALSE, state_length = 1) {
   ARI_matrices <- purrr::map_df(0:length(merger$ImpARI), function(step){
-    ARI <- ARIs(clusMat = intermediateMat(merger, n_steps = step),
-         unclustered = unclustered)
+    ARI <- ARIs(
+      clusMat = intermediateMat(merger, n_steps = step) %>% select(-cells),
+      unclustered = unclustered)
     ARI <- ARI %>%
       as.data.frame() %>%
       dplyr::mutate(label1 = rownames(ARI)) %>%

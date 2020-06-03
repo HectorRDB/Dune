@@ -79,8 +79,9 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
 #' of the final total improvement. Default to 1 (i.e running the full merging).
 #' @param n_steps Alternatively, you can specifiy the number of merging steps to
 #' do before stopping.
-#' @return A matrix with the same dimensions as the currentmMat of the merger
-#' argument
+#' @return A data.frame with the same dimensions as the currentMat of the merger
+#' argument, plus one column with cell names, related to the rownames of the
+#'  original input 
 #' @examples
 #' data("clusMat", package = "Dune")
 #' merger <- Dune(clusMat = clusMat)
@@ -108,12 +109,6 @@ intermediateMat <- function(merger, p = 1, n_steps = NULL) {
     newMat <- newMat %>%
       dplyr::mutate(cells = as.numeric(cells))
   }
-  newMat <- newMat %>%
-    dplyr::arrange(cells)
-  suppressWarnings(rownames(newMat) <- newMat$cells)
-  newMat <- newMat %>%
-    dplyr::select(-cells)
-
   return(newMat)
 }
 
@@ -150,7 +145,8 @@ functionTracking <- function(merger, f, p = 1, n_steps = NULL, ...){
   values <- rep(0, j + 1)
   values[1] <- f(merger$initialMat, ...)
   for (i in seq_len(j)) {
-    values[i + 1] <- f(intermediateMat(merger, n_steps = i), ...)
+    values[i + 1] <- f(intermediateMat(merger, n_steps = i) %>% select(-cells),
+                       ...)
   }
   return(values)
 }
