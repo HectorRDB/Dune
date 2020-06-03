@@ -108,12 +108,6 @@ intermediateMat <- function(merger, p = 1, n_steps = NULL) {
     newMat <- newMat %>%
       dplyr::mutate(cells = as.numeric(cells))
   }
-  newMat <- newMat %>%
-    dplyr::arrange(cells)
-  suppressWarnings(rownames(newMat) <- newMat$cells)
-  newMat <- newMat %>%
-    dplyr::select(-cells)
-
   return(newMat)
 }
 
@@ -150,7 +144,8 @@ functionTracking <- function(merger, f, p = 1, n_steps = NULL, ...){
   values <- rep(0, j + 1)
   values[1] <- f(merger$initialMat, ...)
   for (i in seq_len(j)) {
-    values[i + 1] <- f(intermediateMat(merger, n_steps = i), ...)
+    values[i + 1] <- f(intermediateMat(merger, n_steps = i) %>% select(-cells),
+                       ...)
   }
   return(values)
 }
