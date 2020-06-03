@@ -72,7 +72,7 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
 }
 
 #' Find the clustering matrix that we would get if we stopped the ARI merging
-#' early
+#' early.
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
 #' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
