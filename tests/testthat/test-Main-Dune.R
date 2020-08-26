@@ -2,6 +2,7 @@ context("Dune's main algorithm works as intended")
 
 library(Dune)
 library(dplyr)
+set.seed(971)
 
 test_that("Dune returns the right type of output", {
   data("clusMat", package = "Dune")

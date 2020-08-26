@@ -1,7 +1,7 @@
 context("Dune auxilliary functions")
 library(Dune)
 library(dplyr)
-
+set.seed(76780915)
 test_that("functionTracking and ARIImp are coherent", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)

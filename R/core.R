@@ -50,7 +50,7 @@ NMIImp <- function(merger, unclustered = NULL) {
       return(mean(NMI[upper.tri(NMI)]))
     }
     NMI <- functionTracking(merger, f)
-  } else if (merger$metric == "ARI") {
+  } else if (merger$metric == "NMI") {
     baseNMI <- NMIs(merger$initialMat, unclustered = unclustered)
     baseNMI <- baseNMI[upper.tri(baseNMI)] %>% mean()
     NMI <- merger$ImpMetric  

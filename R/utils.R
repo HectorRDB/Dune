@@ -75,11 +75,11 @@ NMIs <- function(clusMat, unclustered = NULL) {
 #' @title When to Stop
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
-#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
-#' of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param p A value between 0 and 1. We stop when the metric used for merging has
+#'  improved by p of the final total improvement. Default to 1 (i.e running the full merging).
 #' @return An integer giving the step where to stop.
-#' @details The \code{\link{Dune}} process improves the mean ARI. This return
-#' the first merging step after which the mean ARI has been improved by p of the
+#' @details The \code{\link{Dune}} process improves the metric. This return
+#' the first merging step after which the metric has been improved by p of the
 #' total. Setting p = 1 just return the number of merges.
 #' @examples
 #' data("clusMat", package = "Dune")
@@ -88,8 +88,14 @@ NMIs <- function(clusMat, unclustered = NULL) {
 #' @export
 whenToStop <- function(merger, p) {
   if (p < 0 | p > 1) stop("p must be between 0 and 1")
-  ARI <- ARIImp(merger)
-  j <- min(which(ARI[2:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))))
+  if (merger$metric == "ARI") {
+    ARI <- ARIImp(merger)
+    j <- min(which(ARI[2:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))))  
+  } else if (merger$metric == "NMI") {
+    NMI <- NMIImp(merger)
+    j <- min(which(NMI[2:length(NMI)] >= min(NMI) + p * (max(NMI) - min(NMI))))  
+  }
+  
   return(j)
 }
 
