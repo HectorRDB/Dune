@@ -106,7 +106,7 @@ ARItrend <- function(merger, unclustered = NULL) {
                   n_clus)
   n_clus <- apply(n_clus, 2, cumsum)
   colnames(n_clus) <- colnames(baseMat)
-  df <- data.frame(step = 0:length(merger$ImpARI),
+  df <- data.frame(step = 0:length(merger$ImpMetric),
                    ARI_Imp = ARI,
                    n_clus) %>%
     tidyr::gather(key = "change", value = "value", -step) %>%
@@ -117,7 +117,7 @@ ARItrend <- function(merger, unclustered = NULL) {
     facet_wrap(~type, scales = "free") +
     theme_classic() +
     scale_color_brewer(type = "qual") +
-    scale_x_continuous(breaks = c(0, length(merger$ImpARI)),
+    scale_x_continuous(breaks = c(0, length(merger$ImpMetric)),
                        labels = c("Initial", "Final")) +
     labs(y = "Change over merging",
          col = "Type")
@@ -210,7 +210,7 @@ ConfusionPlot <- function(x, y = NULL) {
 #' @export
 ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
                             numericalLabels = FALSE, state_length = 1) {
-  ARI_matrices <- purrr::map_df(0:length(merger$ImpARI), function(step){
+  ARI_matrices <- purrr::map_df(0:length(merger$ImpMetric), function(step){
     ARI <- ARIs(
       clusMat = intermediateMat(merger, n_steps = step) %>% select(-cells),
       unclustered = unclustered)
@@ -272,7 +272,7 @@ ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
 #'   ConfusionEvolution(merger, x = "A", y = "B")}
 #' @export
 ConfusionEvolution <- function(merger, unclustered = NULL, x, y, state_length = 1) {
-  Freqs <- purrr::map_df(0:length(merger$ImpARI), function(step){
+  Freqs <- purrr::map_df(0:length(merger$ImpMetric), function(step){
     clusMat <- intermediateMat(merger, n_steps = step) %>%
       as.matrix()
     df <- table(x = clusMat[, x], y = clusMat[, y]) %>%

@@ -73,16 +73,37 @@ whenToStop <- function(merger, p) {
   return(ARI)
 }
 
-.confusionMatrices <- function(pairPartitions, currentMat) {
+.NormalizedMutualInformation <- function(tab){
+  if (all(dim(tab) == c(1, 1))) return(1)
+  freqs_x <- rowSums(tab) 
+  freqs_x <- freqs_x / sum(freqs_x)
+  H_x <- -sum(ifelse(freqs_x > 0, freqs_x * log(freqs_x), 0))
+  freqs_y <- colSums(tab)
+  freqs_y <- freqs_y / sum(freqs_y)
+  H_y <- -sum(ifelse(freqs_y > 0, freqs_y * log(freqs_y), 0))
+  I_xy <- apply(tab, 0, function(freqs) {
+    freqs <- freqs / sum(freqs)
+    return(-sum(ifelse(freqs > 0, freqs * log(freqs), 0)))
+  })
+  I_xy <- H_y - sum(freqs_x * I_xy)
+  return(2 * I_xy / (H_x + H_y))
+}
+
+.confusionMatrices <- function(pairPartitions, currentMat, metric) {
   confMats <- lapply(
     as.data.frame(pairPartitions, stringsAsFactors = FALSE),
     function(pair){
       C1 <- pair[1]
       C2 <- pair[2]
       confusionMatrix <- table(currentMat[, C1], currentMat[, C2])
-      ARI <- .adjustedRandIndex(confusionMatrix)
+      if (metric == "ARI") {
+        Metric <- .adjustedRandIndex(confusionMatrix)
+      } else if (metric == "NMI") {
+        Metric <- .NormalizedMutualInformation(confusionMatrix)
+      }
+      
       return(list("C1" = C1, "C2" = C2, "confusionMatrix" = confusionMatrix,
-                  "ARI" = ARI))
+                  "Metric" = Metric))
     }
   )
   return(confMats)
@@ -102,7 +123,7 @@ whenToStop <- function(merger, p) {
       confusionMatrix <- confusionMatrix[
         -which(rownames(confusionMatrix) == m2), ]
       # And we update the ARI
-      return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
+      return(.adjustedRandIndex(confusionMatrix) - confMat$Metric)
     } else{
       # If the confusion matrix is one between another partition and C
       if (confMat$C2 == C)  {
@@ -113,7 +134,7 @@ whenToStop <- function(merger, p) {
         confusionMatrix <- confusionMatrix[,
                                         -which(colnames(confusionMatrix) == m2)]
         # And we update the ARI
-        return(.adjustedRandIndex(confusionMatrix) - confMat$ARI)
+        return(.adjustedRandIndex(confusionMatrix) - confMat$Metric)
       } else {
         # Otherwise, nothing happens in that confusion matrix
         return(0)
@@ -124,7 +145,43 @@ whenToStop <- function(merger, p) {
   return(localARIs)
 }
 
-.updatedConfMats <- function(pair, confMats, clusLabel) {
+.localNMI <- function(pair, confMats, C) {
+  m1 <- as.character(min(pair))
+  m2 <- as.character(max(pair))
+  # We look at every confusion matrix
+  localNMIs <- lapply(confMats, function(confMat){
+    # If the confusion matrix is one between C and another partition
+    if (confMat$C1 == C) {
+      confusionMatrix <- confMat$confusionMatrix
+      # We merge the row
+      confusionMatrix[m1, ] <- confusionMatrix[m1, ] +
+        confusionMatrix[m2, ]
+      confusionMatrix <- confusionMatrix[
+        -which(rownames(confusionMatrix) == m2), ]
+      # And we update the NMI
+      return(.NormalizedMutualInformation(confusionMatrix) - confMat$Metric)
+    } else{
+      # If the confusion matrix is one between another partition and C
+      if (confMat$C2 == C)  {
+        confusionMatrix <- confMat$confusionMatrix
+        # We merge the columns
+        confusionMatrix[, m1] <- confusionMatrix[, m1] +
+          confusionMatrix[, m2]
+        confusionMatrix <- confusionMatrix[,
+                                           -which(colnames(confusionMatrix) == m2)]
+        # And we update the NMI
+        return(.NormalizedMutualInformation(confusionMatrix) - confMat$Metric)
+      } else {
+        # Otherwise, nothing happens in that confusion matrix
+        return(0)
+      }
+    }
+  })
+  localNMIs <- unlist(localNMIs)
+  return(localNMIs)
+}
+
+.updatedConfMats <- function(pair, confMats, clusLabel, metric) {
   m1 <- as.character(min(pair))
   m2 <- as.character(max(pair))
   updatedConfMats <- lapply(confMats, function(confMat){
@@ -142,7 +199,12 @@ whenToStop <- function(merger, p) {
         colnames(confusionMatrix) <- colnames(confMat$confusionMatrix)
       }
       updatedConfMat$confusionMatrix <- confusionMatrix
-      updatedConfMat$ARI <- .adjustedRandIndex(confusionMatrix)
+      if (metric == "ARI") {
+        updatedConfMat$Metric <- .adjustedRandIndex(confusionMatrix)  
+      } else if (metric == "NMI") {
+        updatedConfMat$Metric <- .NormalizedMutualInformation(confusionMatrix)  
+      }
+      
     } else{
       if (confMat$C2 == clusLabel) {
         confusionMatrix <- confMat$confusionMatrix
@@ -157,11 +219,14 @@ whenToStop <- function(merger, p) {
           rownames(confusionMatrix) <- rownames(confMat$confusionMatrix)
         }
         updatedConfMat$confusionMatrix <- confusionMatrix
-        updatedConfMat$ARI <- .adjustedRandIndex(confusionMatrix)
+        if (metric == "ARI") {
+          updatedConfMat$Metric <- .adjustedRandIndex(confusionMatrix)  
+        } else if (metric == "NMI") {
+          updatedConfMat$Metric <- .NormalizedMutualInformation(confusionMatrix)  
+        }
       }}
     return(updatedConfMat)
   })
   return(updatedConfMats)
-
 }
 

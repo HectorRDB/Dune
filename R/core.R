@@ -14,8 +14,8 @@
 #' @export
 ARIImp <- function(merger, unclustered = NULL) {
   baseARI <- ARIs(merger$initialMat, unclustered = unclustered)
-  # Normalize the impARI so that we take the mean over the same values.
-  ARI <- merger$ImpARI
+  # Normalize the ImpMetric so that we take the mean over the same values.
+  ARI <- merger$ImpMetric
   baseARI <- baseARI[upper.tri(baseARI)] %>% mean()
   ARI <- c(baseARI, ARI)
   ARI <- cumsum(ARI)

@@ -7,11 +7,11 @@ test_that("Dune returns the right type of output", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
   expect_equal(length(merger), 4)
-  expect_equal(names(merger), c("initialMat", "currentMat", "merges", "ImpARI"))
+  expect_equal(names(merger), c("initialMat", "currentMat", "merges", "ImpMetric"))
   expect_is(merger$initialMat, "matrix")
   expect_is(merger$currentMat, "data.frame")
   expect_is(merger$merges, "data.frame")
-  expect_is(merger$ImpARI, "numeric")
+  expect_is(merger$ImpMetric, "numeric")
   expect_output(Dune(clusMat, verbose = TRUE))
 })
 
@@ -21,7 +21,7 @@ test_that("Dune correctly picks the best cluster", {
     merger <- Dune(clusMat)
     if (nrow(merger$merges) <= 3) next()
     df <- intermediateMat(merger, n_steps = nrow(merger$merges) - 2)
-    df <- as.matrix(df)
+    df <- as.matrix(df[, -1])
     init_ARI <- ARIs(df)
     for (j in 1:20) {
       col <- sample(colnames(df), 1)
@@ -32,7 +32,7 @@ test_that("Dune correctly picks the best cluster", {
       df2[df2[, col] == m2, col] <- m1
       final_ARI <- ARIs(df2)
       expect_true(mean((final_ARI - init_ARI)[upper.tri(init_ARI)]) <=
-                    merger$ImpARI[nrow(merger$merges) - 1])
+                    merger$ImpMetric[nrow(merger$merges) - 1])
     }
   }
 })

@@ -11,7 +11,7 @@ test_that("functionTracking and ARIImp are coherent", {
   }
   expect_equal(ARIImp(merger), functionTracking(merger, f))
   expect_equal(ARIImp(merger),
-               functionTracking(merger, f, n_steps = length(merger$ImpARI)))
+               functionTracking(merger, f, n_steps = length(merger$ImpMetric)))
 })
 
 test_that("clusterConversion and intermediateMat are coherent with Dune", {

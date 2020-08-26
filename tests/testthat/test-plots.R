@@ -54,5 +54,4 @@ test_that("All dynamic plotting functions return a gganim object", {
   p <- ARIEvolution(merger, numericalLabels = TRUE)
   expect_is(ARIEvolution(merger), "gganim")
   expect_error(print(p), NA)
-  
 })
