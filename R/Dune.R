@@ -35,6 +35,11 @@
                   parallel = FALSE,
                   BPPARAM = BiocParallel::bpparam(),
                   metric = "ARI"){
+  
+  if (!metric %in% c("ARI", "NMI")) {
+    stop("For now, only the ARI and NMI are accepted as metrics")
+  }
+  
   # Initialize the values
   ## Unique cluster labels for all partitions
   currentMat <- clusMat

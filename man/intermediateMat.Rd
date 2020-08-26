@@ -18,8 +18,9 @@ of the final total improvement. Default to 1 (i.e running the full merging).}
 do before stopping.}
 }
 \value{
-A matrix with the same dimensions as the currentmMat of the merger
-argument
+A data.frame with the same dimensions as the currentMat of the merger
+argument, plus one column with cell names, related to the rownames of the
+original input
 }
 \description{
 Find the clustering matrix that we would get if we stopped the ARI merging

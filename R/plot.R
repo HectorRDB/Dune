@@ -1,4 +1,27 @@
 utils::globalVariables(c("methods", "time"))
+
+.plotMetric <- function(Mat, values = TRUE,  numericalLabels = FALSE) {
+  df <- Mat %>% as.data.frame() %>%
+    dplyr::mutate(label1 = rownames(Mat)) %>%
+    tidyr::gather(key = label2, value = metric, -(ncol(Mat) + 1))
+  if (numericalLabels) {
+    df <- df %>%
+      dplyr::mutate(label1 = as.numeric(label1), label2 = as.numeric(label2))
+  }
+  p <- ggplot(df, aes(x = label1, y = label2, fill = metric)) +
+    geom_tile() +
+    scale_fill_gradientn(colours = brewer.pal(9, "Spectral"),
+                         limits = c(0, 1)) +
+    theme_classic() +
+    theme(axis.line = element_blank())
+  if (values) {
+    p <- p  +
+      geom_text(aes(label = round(metric, 2)), size = 4) +
+      guides(fill = FALSE)
+  }
+  return(p)
+}
+
 #' Plot an heatmap of the ARI matrix
 #'
 #' We can compute the ARI between pairs of cluster labels. This function plots
@@ -21,29 +44,38 @@ utils::globalVariables(c("methods", "time"))
 #' @import ggplot2
 #' @import RColorBrewer
 #' @export
-
 plotARIs <- function(clusMat, unclustered = NULL, values = TRUE,
                      numericalLabels = FALSE) {
   ARI <- ARIs(clusMat, unclustered = unclustered)
-  df <- ARI %>% as.data.frame() %>%
-    dplyr::mutate(label1 = rownames(ARI)) %>%
-    tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1))
-  if (numericalLabels) {
-    df <- df %>%
-      dplyr::mutate(label1 = as.numeric(label1), label2 = as.numeric(label2))
-  }
-  p <- ggplot(df, aes(x = label1, y = label2, fill = ari)) +
-    geom_tile() +
-    scale_fill_gradientn(colours = brewer.pal(9, "Spectral"),
-                         limits = c(0, 1)) +
-    theme_classic() +
-    theme(axis.line = element_blank())
-  if (values) {
-    p <- p  +
-      geom_text(aes(label = round(ari, 2)), size = 4) +
-      guides(fill = FALSE)
-  }
-  return(p)
+  return(.plotMetric(ARI))
+}
+
+#' Plot an heatmap of the NMI matrix
+#'
+#' We can compute the NMI between pairs of cluster labels. This function plots
+#' a matrix where a cell is the Normalized Mutual Information between cluster label of
+#' row i and cluster label of column j.
+#' @param clusMat The clustering matrix with a row per cell and a column per
+#' clustering label type
+#' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
+#' @param values Whether to also display the ARI values. Default to TRUE.
+#' @param numericalLabels Whether labels are numerical values. Default to FALSE.
+#' @return a \code{\link{ggplot}} object
+#' @importFrom dplyr mutate
+#' @importFrom tidyr gather
+#' @importFrom magrittr %>%
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat, metric = "NMI")
+#' plotNMIs(merger$initialMat)
+#' plotNMIs(merger$currentMat)
+#' @import ggplot2
+#' @import RColorBrewer
+#' @export
+plotNMIs <- function(clusMat, unclustered = NULL, values = TRUE,
+                     numericalLabels = FALSE) {
+  NMI <- NMIs(clusMat, unclustered = unclustered)
+  return(.plotMetric(NMI))
 }
 
 #' Plot the reduction in cluster size for an ARI merging with \code{Dune}

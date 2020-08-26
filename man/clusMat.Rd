@@ -5,7 +5,7 @@
 \alias{clusMat}
 \title{A clustering matrix used to demonstrate the ari-merging process.}
 \format{
-An object of class \code{matrix} with 100 rows and 5 columns.
+An object of class \code{matrix} (inherits from \code{array}) with 100 rows and 5 columns.
 }
 \usage{
 clusMat

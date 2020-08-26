@@ -10,11 +10,10 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Imports: 
     BiocParallel,
     SummarizedExperiment,
-    mclust,
     utils,
     ggplot2,
     dplyr,
@@ -22,7 +21,8 @@ Imports:
     RColorBrewer,
     magrittr,
     gganimate,
-    purrr
+    purrr,
+    aricode
 Suggests: 
     knitr,
     rmarkdown,

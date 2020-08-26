@@ -9,7 +9,7 @@ utils::globalVariables(c("new"))
 #' between columns **i** and **j** of the original \code{clusMat}.
 #' If \code{unclustered} is not NULL, the cells which have been assigned to the
 #' \code{unclustered} cluster will not be counted towards computing the ARI.
-#' @importFrom mclust adjustedRandIndex
+#' @importFrom aricode ARI
 #' @examples
 #' data("clusMat", package = "Dune")
 #' ARIs(clusMat)
@@ -24,7 +24,7 @@ ARIs <- function(clusMat, unclustered = NULL) {
         x_unc <- x
         y_unc <- y
       }
-      mclust::adjustedRandIndex(x_unc, y_unc)
+      aricode::ARI(x_unc, y_unc)
     })
   })
   if (is.null(colnames(clusMat))) {
@@ -34,6 +34,42 @@ ARIs <- function(clusMat, unclustered = NULL) {
   }
 
   return(ARI)
+}
+
+#' @title NMI Matrix
+#' @param clusMat The clustering matrix with a row per cell and a column per
+#' clustering label type
+#' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
+#' @return The NMI matrix
+#' @details In the NMI matrix where each cell **i,j** is the normalized mutual 
+#' information between columns **i** and **j** of the original \code{clusMat}.
+#' If \code{unclustered} is not NULL, the cells which have been assigned to the
+#' \code{unclustered} cluster will not be counted towards computing the NMI.
+#' @importFrom aricode NMI
+#' @examples
+#' data("clusMat", package = "Dune")
+#' NMIs(clusMat)
+#' @export
+NMIs <- function(clusMat, unclustered = NULL) {
+  NMI <- apply(clusMat, 2, function(x) {
+    apply(clusMat, 2, function(y) {
+      if (!is.null(unclustered)) {
+        x_unc <- x[x != unclustered & y != unclustered]
+        y_unc <- y[x != unclustered & y != unclustered]
+      } else {
+        x_unc <- x
+        y_unc <- y
+      }
+      aricode::NMI(x_unc, y_unc, variant = "sum")
+    })
+  })
+  if (is.null(colnames(clusMat))) {
+    rownames(NMI) <- colnames(NMI) <- seq_len(ncol(clusMat))
+  } else {
+    rownames(NMI) <- colnames(NMI) <- colnames(clusMat)
+  }
+  
+  return(NMI)
 }
 
 #' @title When to Stop
@@ -60,8 +96,6 @@ whenToStop <- function(merger, p) {
 #' @title adjustedRandIndex
 #' @param tab The confusion matrix
 #' @return The ARI
-#' @details Second part of the \code{\link{adjustedRandIndex}} function from
-#'  \code{\link{mclust}}.
 .adjustedRandIndex <- function(tab) {
   if (all(dim(tab) == c(1, 1))) return(1)
   a <- sum(choose(tab, 2))
@@ -81,7 +115,7 @@ whenToStop <- function(merger, p) {
   freqs_y <- colSums(tab)
   freqs_y <- freqs_y / sum(freqs_y)
   H_y <- -sum(ifelse(freqs_y > 0, freqs_y * log(freqs_y), 0))
-  I_xy <- apply(tab, 0, function(freqs) {
+  I_xy <- base::apply(tab, 1, function(freqs) {
     freqs <- freqs / sum(freqs)
     return(-sum(ifelse(freqs > 0, freqs * log(freqs), 0)))
   })
