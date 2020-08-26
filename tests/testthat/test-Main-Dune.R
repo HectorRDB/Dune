@@ -6,8 +6,9 @@ library(dplyr)
 test_that("Dune returns the right type of output", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
-  expect_equal(length(merger), 4)
-  expect_equal(names(merger), c("initialMat", "currentMat", "merges", "ImpMetric"))
+  expect_equal(length(merger), 5)
+  expect_equal(names(merger),
+               c("initialMat", "currentMat", "merges", "ImpMetric", "metric"))
   expect_is(merger$initialMat, "matrix")
   expect_is(merger$currentMat, "data.frame")
   expect_is(merger$merges, "data.frame")
