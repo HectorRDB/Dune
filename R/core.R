@@ -13,13 +13,51 @@
 #' plot(0:nrow(merger$merges), ARIImp(merger))
 #' @export
 ARIImp <- function(merger, unclustered = NULL) {
-  baseARI <- ARIs(merger$initialMat, unclustered = unclustered)
-  # Normalize the ImpMetric so that we take the mean over the same values.
-  ARI <- merger$ImpMetric
-  baseARI <- baseARI[upper.tri(baseARI)] %>% mean()
-  ARI <- c(baseARI, ARI)
-  ARI <- cumsum(ARI)
+  if (merger$metric != "ARI") {
+    f <- function(clusMat) {
+      ARI <- ARIs(clusMat)
+      return(mean(ARI[upper.tri(ARI)]))
+    }
+    ARI <- functionTracking(merger, f)
+  } else if (merger$metric == "ARI") {
+    baseARI <- ARIs(merger$initialMat, unclustered = unclustered)
+    baseARI <- baseARI[upper.tri(baseARI)] %>% mean()
+    ARI <- merger$ImpMetric  
+    ARI <- c(baseARI, ARI)
+    ARI <- cumsum(ARI)
+  }
   return(ARI)
+}
+
+#' NMI improvement
+#'
+#' Compute the NMI improvement over the NMI merging procedure
+#' @param merger the result from having run \code{\link{Dune}}
+#'  on the dataset
+#' @param unclustered The value assigned to unclustered cells. Default to \code{NULL}
+#' @return a vector with the mean NMI between methods at each merge
+#' @seealso NMItrend
+#' @importFrom magrittr %>%
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' plot(0:nrow(merger$merges), NMIImp(merger))
+#' @export
+NMIImp <- function(merger, unclustered = NULL) {
+  if (merger$metric != "NMI") {
+    f <- function(clusMat) {
+      NMI <- NMIs(clusMat)
+      return(mean(NMI[upper.tri(NMI)]))
+    }
+    NMI <- functionTracking(merger, f)
+  } else if (merger$metric == "ARI") {
+    baseNMI <- NMIs(merger$initialMat, unclustered = unclustered)
+    baseNMI <- baseNMI[upper.tri(baseNMI)] %>% mean()
+    NMI <- merger$ImpMetric  
+    NMI <- c(baseNMI, NMI)
+    NMI <- cumsum(NMI)
+  }
+  return(NMI)
 }
 
 #' clusterConversion

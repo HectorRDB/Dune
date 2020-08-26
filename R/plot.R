@@ -1,5 +1,6 @@
 utils::globalVariables(c("methods", "time"))
 
+# Heatmaps ----
 .plotMetric <- function(Mat, values = TRUE,  numericalLabels = FALSE) {
   df <- Mat %>% as.data.frame() %>%
     dplyr::mutate(label1 = rownames(Mat)) %>%
@@ -78,6 +79,8 @@ plotNMIs <- function(clusMat, unclustered = NULL, values = TRUE,
   return(.plotMetric(NMI))
 }
 
+# Evolutions ----
+
 #' Plot the reduction in cluster size for an ARI merging with \code{Dune}
 #' @param merger The output from an ARI merging, by calling \code{\link{Dune}}
 #' @return a \code{\link{ggplot}} object
@@ -107,6 +110,38 @@ plotPrePost <- function(merger) {
   return(p)
 }
 
+.metricTrend <- function(merger, Imp, metric) {
+  baseMat <- merger$initialMat
+  n_clus <- lapply(seq_len(nrow(merger$merges)), function(m){
+    diff <- rep(0, ncol(baseMat))
+    names(diff) <- colnames(merger$initialMat)
+    diff[merger$merges[m, 1]] <- -1
+    matrix(diff, nrow = 1)
+  }) %>%
+    do.call('rbind', args = .)
+  n_clus <- rbind(apply(baseMat, 2, n_distinct) %>% matrix(data = ., nrow = 1),
+                  n_clus)
+  n_clus <- apply(n_clus, 2, cumsum)
+  colnames(n_clus) <- colnames(baseMat)
+  df <- data.frame(step = 0:length(merger$ImpMetric),
+                   Metric_Imp = Imp,
+                   n_clus) %>%
+    tidyr::gather(key = "change", value = "value", -step) %>%
+    dplyr::mutate(type = ifelse(change == "Metric_Imp",
+                                paste0(metric, " Improvement"),
+                                "Nb of clusters"))
+  p <- ggplot(df, aes(x = step, y = value)) +
+    geom_path(size = 2, aes(group = change, col = change)) +
+    facet_wrap(~type, scales = "free") +
+    theme_classic() +
+    scale_color_brewer(type = "qual") +
+    scale_x_continuous(breaks = c(0, length(merger$ImpMetric)),
+                       labels = c("Initial", "Final")) +
+    labs(y = "Change over merging",
+         col = "Type")
+  return(p)
+}
+
 #' ARI improvement plot
 #'
 #' A plot to see how ARI improves over merging
@@ -125,37 +160,31 @@ plotPrePost <- function(merger) {
 #' @export
 #' @import ggplot2
 ARItrend <- function(merger, unclustered = NULL) {
-  baseMat <- merger$initialMat
   ARI <- ARIImp(merger, unclustered = unclustered)
-  n_clus <- lapply(seq_len(nrow(merger$merges)), function(m){
-    diff <- rep(0, ncol(baseMat))
-    names(diff) <- colnames(merger$initialMat)
-    diff[merger$merges[m, 1]] <- -1
-    matrix(diff, nrow = 1)
-  }) %>%
-    do.call('rbind', args = .)
-  n_clus <- rbind(apply(baseMat, 2, n_distinct) %>% matrix(data = ., nrow = 1),
-                  n_clus)
-  n_clus <- apply(n_clus, 2, cumsum)
-  colnames(n_clus) <- colnames(baseMat)
-  df <- data.frame(step = 0:length(merger$ImpMetric),
-                   ARI_Imp = ARI,
-                   n_clus) %>%
-    tidyr::gather(key = "change", value = "value", -step) %>%
-    dplyr::mutate(type = ifelse(change == "ARI_Imp", "ARI Improvement",
-                                "Nb of clusters"))
-  p <- ggplot(df, aes(x = step, y = value)) +
-    geom_path(size = 2, aes(group = change, col = change)) +
-    facet_wrap(~type, scales = "free") +
-    theme_classic() +
-    scale_color_brewer(type = "qual") +
-    scale_x_continuous(breaks = c(0, length(merger$ImpMetric)),
-                       labels = c("Initial", "Final")) +
-    labs(y = "Change over merging",
-         col = "Type")
-  return(p)
+  return(.metricTrend(merger, ARI, metric = "ARI"))
 }
 
+#' NMI improvement plot
+#'
+#' A plot to see how NMI improves over merging
+#' @param merger the result from having run \code{\link{Dune}}
+#'  on the dataset
+#' @param unclustered The value assigned to unclustered cells. Default to
+#' \code{NULL}
+#' @return a \code{\link{ggplot}} object
+#' @importFrom dplyr mutate
+#' @importFrom tidyr gather
+#' @importFrom magrittr %>%
+#' @examples
+#' data("clusMat", package = "Dune")
+#' merger <- Dune(clusMat = clusMat)
+#' NMItrend(merger)
+#' @export
+#' @import ggplot2
+NMItrend <- function(merger, unclustered = NULL) {
+  NMI <- NMIImp(merger, unclustered = unclustered)
+  return(.metricTrend(merger, NMI, metric = "NMI"))
+}
 #' Plot confusion matrix
 #'
 #' A plot to visualize how alike two clustering labels are
@@ -210,73 +239,6 @@ ConfusionPlot <- function(x, y = NULL) {
                                  barwidth = unit(.2, "npc")))
   return(p)
   }
-
-
-#' Plot the evolution of the pairwise ARIs as merging
-#' happens
-#'
-#' Animated version of \code{\link{plotARIs}}
-#'
-#' @param merger the result from having run \code{\link{Dune}}
-#'  on the dataset
-#' @param unclustered The value assigned to unclustered cells. Default to
-#' \code{NULL}
-#' @param values Whether to also display the ARI values. Default to TRUE.
-#' @param numericalLabels Whether labels are numerical values. Default to FALSE.
-#' @param state_length Time between steps. Default to 1. See \code{\link{transition_states}}
-#' for details.
-#' @return a \code{gganim} object
-#' @details See \code{\link{plotARIs}} and \code{\link{animate}}.
-#' @importFrom purrr map_df
-#' @importFrom tidyr gather
-#' @importFrom dplyr mutate n_distinct select
-#' @importFrom magrittr %>%
-#' @importFrom RColorBrewer brewer.pal
-#' @importFrom gganimate transition_states
-#' @import ggplot2
-#' @examples
-#' \dontrun{
-#'   data("clusMat", package = "Dune")
-#'   merger <- Dune(clusMat = clusMat)
-#'   ARIEvolution(merger)}
-#' @export
-ARIEvolution <- function(merger, unclustered = NULL, values = TRUE,
-                            numericalLabels = FALSE, state_length = 1) {
-  ARI_matrices <- purrr::map_df(0:length(merger$ImpMetric), function(step){
-    ARI <- ARIs(
-      clusMat = intermediateMat(merger, n_steps = step) %>% select(-cells),
-      unclustered = unclustered)
-    ARI <- ARI %>%
-      as.data.frame() %>%
-      dplyr::mutate(label1 = rownames(ARI)) %>%
-      tidyr::gather(key = label2, value = ari, -(ncol(ARI) + 1)) %>%
-      dplyr::mutate(step = step)
-  })
-  if (numericalLabels) {
-    ARI_matrices <- ARI_matrices %>%
-      dplyr::mutate(label1 = as.numeric(label1), label2 = as.numeric(label2))
-  }
-  ARI_matrices <- ARI_matrices %>%
-    dplyr::arrange(step)
-  p <- ggplot(ARI_matrices, aes(x = label1, y = label2, fill = ari)) +
-    geom_tile() +
-    scale_fill_gradientn(colours = RColorBrewer::brewer.pal(9, "Spectral"),
-                         limits = c(0, 1)) +
-    theme_classic() +
-    theme(axis.line = element_blank())
-  if (values) {
-    p <- p  +
-      geom_text(aes(label = round(ari, 2)), size = 4) +
-      guides(fill = FALSE)
-  }
-  p <- p +
-  gganimate::transition_states(step,
-                               transition_length = 0,
-                               state_length =  state_length /
-                                 dplyr::n_distinct(ARI_matrices$label1)) +
-    ggtitle(paste0('Step {closest_state} of ', max(ARI_matrices$step)))
-  return(p)
-}
 
 #' Plot the evolution of the ConfusionPlot as merging
 #' happens

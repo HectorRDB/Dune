@@ -122,7 +122,8 @@
     "initialMat" = clusMat,
     "currentMat" = as.data.frame(currentMat, stringsAsFactors = FALSE),
     "merges" = as.data.frame(merges, stringsAsFactors = FALSE),
-    "ImpMetric" = ImpMetric
+    "ImpMetric" = ImpMetric,
+    metric = metric
   )
   if (is.null(colnames(clusMat))) {
     colnames(merger$initialMat) <- colnames(currentMat)
@@ -151,7 +152,7 @@
 #'  improvement vector.
 #' @details The Dune algorithm merges pairs of clusters in order to improve the
 #' mean adjusted Rand Index or the mean normalized mutual information with other
-#' clustering labels. It returns a list with four components.:
+#' clustering labels. It returns a list with five components.:
 #'  #' \itemize{
 #'   \item \code{initialMat}: The initial matrix of cluster labels
 #'   \item \code{currentMat}: The final matrix of cluster labels
@@ -159,6 +160,7 @@
 #'   which clusters where merged in which cluster label
 #'   \item \code{impMetric}: How much each merge improved the mean Metric between the
 #'   cluster label that has been merged and the other cluster labels.
+#'   \item \code{metric}: The metric that was used to find the merges.
 #' }
 #' @seealso clusterConversion ARIImp
 #' @importFrom BiocParallel bplapply bpparam

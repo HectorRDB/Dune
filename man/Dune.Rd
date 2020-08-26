@@ -71,7 +71,7 @@ Compute the Metric between every pair of clustering labels after merging every p
 \details{
 The Dune algorithm merges pairs of clusters in order to improve the
 mean adjusted Rand Index or the mean normalized mutual information with other
-clustering labels. It returns a list with four components.:
+clustering labels. It returns a list with five components.:
 #' \itemize{
 \item \code{initialMat}: The initial matrix of cluster labels
 \item \code{currentMat}: The final matrix of cluster labels
@@ -79,6 +79,7 @@ clustering labels. It returns a list with four components.:
 which clusters where merged in which cluster label
 \item \code{impMetric}: How much each merge improved the mean Metric between the
 cluster label that has been merged and the other cluster labels.
+\item \code{metric}: The metric that was used to find the merges.
 }
 }
 \examples{

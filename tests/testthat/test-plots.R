@@ -20,12 +20,30 @@ test_that("All static plotting functions return a ggplot object", {
   p <- plotARIs(mat, numericalLabels = TRUE)
   expect_is(p, "gg")
   expect_error(print(p), NA)
+  # plotNMIs 1
+  p <- plotNMIs(merger$initialMat)
+  expect_is(p, "gg")
+  expect_error(print(p), NA)
+  # plotNMIs 2
+  p <- plotNMIs(merger$initialMat, unclustered = 1)
+  expect_is(p, "gg")
+  expect_error(print(p), NA)
+  # plotNMIs 3
+  mat <- merger$initialMat
+  colnames(mat) <- seq_len(ncol(mat))
+  p <- plotNMIs(mat, numericalLabels = TRUE)
+  expect_is(p, "gg")
+  expect_error(print(p), NA)
   # plotPrePost
   p <- plotPrePost(merger)
   expect_is(p, "gg")
   expect_error(print(p), NA)
   # ARItrend
   p <- ARItrend(merger)
+  expect_is(p, "gg")
+  expect_error(print(p), NA)
+  # NMItrend
+  p <- NMItrend(merger)
   expect_is(p, "gg")
   expect_error(print(p), NA)
   # ConfusionPlot
@@ -40,18 +58,7 @@ test_that("All dynamic plotting functions return a gganim object", {
   data("clusMat", package = "Dune")
   data("nuclei", package = "Dune")
   merger <- Dune(clusMat)
-  # ARI Evolution
-  p <- ARIEvolution(merger)
-  expect_is(ARIEvolution(merger), "gganim")
-  expect_error(print(p), NA)
   # Confusion Evolution
   p <- ConfusionEvolution(merger, x = "A", y = "B")
   expect_is(p, "gganim")
-  expect_error(print(p), NA)
-  # Specifics
-  colnames(clusMat) <- 1:5
-  merger <- Dune(clusMat)
-  p <- ARIEvolution(merger, numericalLabels = TRUE)
-  expect_is(ARIEvolution(merger), "gganim")
-  expect_error(print(p), NA)
 })

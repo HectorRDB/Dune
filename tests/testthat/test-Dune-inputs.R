@@ -20,5 +20,9 @@ test_that("Dune fails when wrong column names are specified", {
   sce <- SummarizedExperiment::SummarizedExperiment(assays = list(counts = t(clusMat)),
                                                     colData = clusMat)
   expect_error(Dune(clusMat = sce, cluster_columns = c("A", "F")))
+})
+
+test_that("Dune fails when the wrong metric is specified", {
+  data("clusMat", package = "Dune")
   expect_error(Dune(clusMat = clusMat, metric = "AEIHn"))
 })

@@ -41,7 +41,9 @@ test_that("Dune correctly picks the best cluster for ARI", {
 test_that("Dune correctly picks the best cluster for NMI", {
   for (i in 1:10) {
     clusMat <- matrix(sample(1:5, 500, replace = TRUE), ncol = 5)
-    merger <- Dune(clusMat, metric = "NMI")
+    merger <- try({Dune(clusMat, metric = "NMI")},
+                  silent = TRUE)
+    if (class(merger) == "try-error") next()
     if (nrow(merger$merges) <= 3) next()
     df <- intermediateMat(merger, n_steps = nrow(merger$merges) - 2)
     df <- as.matrix(df[, -1])
