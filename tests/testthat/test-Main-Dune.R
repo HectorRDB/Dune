@@ -2,7 +2,7 @@ context("Dune's main algorithm works as intended")
 
 library(Dune)
 library(dplyr)
-set.seed(971)
+set.seed(107070770)
 
 test_that("Dune returns the right type of output", {
   data("clusMat", package = "Dune")
@@ -35,30 +35,6 @@ test_that("Dune correctly picks the best cluster for ARI", {
       df2[df2[, col] == m2, col] <- m1
       final_ARI <- ARIs(df2)
       expect_true(mean((final_ARI - init_ARI)[upper.tri(init_ARI)]) <=
-                    merger$ImpMetric[nrow(merger$merges) - 1])
-    }
-  }
-})
-
-test_that("Dune correctly picks the best cluster for NMI", {
-  for (i in 1:10) {
-    clusMat <- matrix(sample(1:5, 500, replace = TRUE), ncol = 5)
-    merger <- try({Dune(clusMat, metric = "NMI")},
-                  silent = TRUE)
-    if (class(merger) == "try-error") next()
-    if (nrow(merger$merges) <= 3) next()
-    df <- intermediateMat(merger, n_steps = nrow(merger$merges) - 2)
-    df <- as.matrix(df[, -1])
-    init_NMI <- NMIs(df)
-    for (j in 1:20) {
-      col <- sample(colnames(df), 1)
-      pair <- sample(t(unique(df[,col])), 2)
-      m2 <- max(pair)
-      m1 <- min(pair)
-      df2 <- df
-      df2[df2[, col] == m2, col] <- m1
-      final_NMI <- NMIs(df2)
-      expect_true(mean((final_NMI - init_NMI)[upper.tri(init_NMI)]) <=
                     merger$ImpMetric[nrow(merger$merges) - 1])
     }
   }
