@@ -6,7 +6,7 @@ test_that("functionTracking and ARIImp are coherent", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
   f <- function(clusMat) {
-    ARI <- ARIs(clusMat)
+    ARI <- ARIs(clusMat %>% select(-cells) %>% as.matrix())
     return(mean(ARI[upper.tri(ARI)]))
   }
   expect_equal(ARIImp(merger), functionTracking(merger, f))
@@ -18,7 +18,7 @@ test_that("functionTracking and NMIImp are coherent", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat, metric = "NMI")
   f <- function(clusMat) {
-    NMI <- NMIs(clusMat)
+    NMI <- NMIs(clusMat %>% select(-cells) %>% as.matrix())
     return(mean(NMI[upper.tri(NMI)]))
   }
   expect_equal(NMIImp(merger), functionTracking(merger, f))

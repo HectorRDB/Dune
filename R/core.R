@@ -15,7 +15,7 @@
 ARIImp <- function(merger, unclustered = NULL) {
   if (merger$metric != "ARI") {
     f <- function(clusMat) {
-      ARI <- ARIs(clusMat)
+      ARI <- ARIs(clusMat %>% select(-cells)%>% as.matrix())
       return(mean(ARI[upper.tri(ARI)]))
     }
     ARI <- functionTracking(merger, f)
@@ -46,7 +46,7 @@ ARIImp <- function(merger, unclustered = NULL) {
 NMIImp <- function(merger, unclustered = NULL) {
   if (merger$metric != "NMI") {
     f <- function(clusMat) {
-      NMI <- NMIs(clusMat)
+      NMI <- NMIs(clusMat %>% select(-cells) %>% as.matrix())
       return(mean(NMI[upper.tri(NMI)]))
     }
     NMI <- functionTracking(merger, f)
@@ -181,9 +181,8 @@ functionTracking <- function(merger, f, p = 1, n_steps = NULL, ...){
     j <- n_steps
   }
   values <- rep(0, j + 1)
-  values[1] <- f(merger$initialMat, ...)
-  for (i in seq_len(j)) {
-    values[i + 1] <- f(intermediateMat(merger, n_steps = i) %>% select(-cells),
+  for (i in seq(0, j)) {
+    values[i + 1] <- f(intermediateMat(merger, n_steps = i),
                        ...)
   }
   return(values)
