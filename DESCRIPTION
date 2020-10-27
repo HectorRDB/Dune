@@ -1,6 +1,6 @@
 Package: Dune
 Title: Improving replicability in single-cell RNA-Seq cell type discovery
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: c(person("Hector", "Roux de Bezieux", role = c("aut", "cre"),
                    email = "hector.rouxdebezieux@berkeley.edu",
 		   comment = c(ORCID = "0000-0002-1489-8339")),
