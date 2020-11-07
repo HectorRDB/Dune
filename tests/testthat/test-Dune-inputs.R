@@ -21,3 +21,8 @@ test_that("Dune fails when wrong column names are specified", {
                                                     colData = clusMat)
   expect_error(Dune(clusMat = sce, cluster_columns = c("A", "F")))
 })
+
+test_that("Dune fails when the wrong metric is specified", {
+  data("clusMat", package = "Dune")
+  expect_error(Dune(clusMat = clusMat, metric = "AEIHn"))
+})

@@ -1,17 +1,29 @@
 context("Dune auxilliary functions")
 library(Dune)
 library(dplyr)
-
+set.seed(76780915)
 test_that("functionTracking and ARIImp are coherent", {
   data("clusMat", package = "Dune")
   merger <- Dune(clusMat)
   f <- function(clusMat) {
-    ARI <- ARIs(clusMat)
+    ARI <- ARIs(clusMat %>% select(-cells) %>% as.matrix())
     return(mean(ARI[upper.tri(ARI)]))
   }
   expect_equal(ARIImp(merger), functionTracking(merger, f))
   expect_equal(ARIImp(merger),
-               functionTracking(merger, f, n_steps = length(merger$ImpARI)))
+               functionTracking(merger, f, n_steps = length(merger$ImpMetric)))
+})
+
+test_that("functionTracking and NMIImp are coherent", {
+  data("clusMat", package = "Dune")
+  merger <- Dune(clusMat, metric = "NMI")
+  f <- function(clusMat) {
+    NMI <- NMIs(clusMat %>% select(-cells) %>% as.matrix())
+    return(mean(NMI[upper.tri(NMI)]))
+  }
+  expect_equal(NMIImp(merger), functionTracking(merger, f))
+  expect_equal(NMIImp(merger),
+               functionTracking(merger, f, n_steps = length(merger$ImpMetric)))
 })
 
 test_that("clusterConversion and intermediateMat are coherent with Dune", {

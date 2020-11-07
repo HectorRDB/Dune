@@ -4,14 +4,17 @@
 \alias{whenToStop}
 \title{When to Stop}
 \usage{
-whenToStop(merger, p)
+whenToStop(merger, p = 1, average_n = NULL)
 }
 \arguments{
 \item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
-\item{p}{A value between 0 and 1. We stop when the mean ARI has improved by p
-of the final total improvement. Default to 1 (i.e running the full merging).}
+\item{p}{A value between 0 and 1. We stop when the metric used for merging has
+improved by p of the final total improvement. Default to 1 (i.e running the full merging).}
+
+\item{average_n}{Alternatively, you can specify the average number of clusters you
+want to have.}
 }
 \value{
 An integer giving the step where to stop.
@@ -20,8 +23,8 @@ An integer giving the step where to stop.
 When to Stop
 }
 \details{
-The \code{\link{Dune}} process improves the mean ARI. This return
-the first merging step after which the mean ARI has been improved by p of the
+The \code{\link{Dune}} process improves the metric. This return
+the first merging step after which the metric has been improved by p of the
 total. Setting p = 1 just return the number of merges.
 }
 \examples{

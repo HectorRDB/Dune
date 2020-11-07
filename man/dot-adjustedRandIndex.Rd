@@ -15,7 +15,3 @@ The ARI
 \description{
 adjustedRandIndex
 }
-\details{
-Second part of the \code{\link{adjustedRandIndex}} function from
-\code{\link{mclust}}.
-}

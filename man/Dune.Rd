@@ -14,7 +14,8 @@ Dune(clusMat, ...)
   unclustered = NULL,
   verbose = FALSE,
   parallel = FALSE,
-  BPPARAM = BiocParallel::bpparam()
+  BPPARAM = BiocParallel::bpparam(),
+  metric = "NMI"
 )
 
 \S4method{Dune}{data.frame}(
@@ -22,7 +23,8 @@ Dune(clusMat, ...)
   unclustered = NULL,
   verbose = FALSE,
   parallel = FALSE,
-  BPPARAM = BiocParallel::bpparam()
+  BPPARAM = BiocParallel::bpparam(),
+  metric = "NMI"
 )
 
 \S4method{Dune}{SummarizedExperiment}(
@@ -31,7 +33,8 @@ Dune(clusMat, ...)
   unclustered = NULL,
   verbose = FALSE,
   parallel = FALSE,
-  BPPARAM = BiocParallel::bpparam()
+  BPPARAM = BiocParallel::bpparam(),
+  metric = "NMI"
 )
 }
 \arguments{
@@ -51,28 +54,32 @@ back-end to be used for computations.
 See \code{bpparam} in \code{BiocParallel} package for details.
 Won't be used if \code{parallel} is FALSE.}
 
+\item{metric}{The metric that is tracked to decide which clusters to merge. For now,
+either ARI and NMI are accepted. Default to NMI. See details.}
+
 \item{cluster_columns}{if \code{clusMat} is a \code{\link{SummarizedExperiment}},
 then this defines the columns of \code{colData} that are outputs from a clustering algorithm.}
 }
 \value{
 A list with four components: the initial matrix of clustering labels,
-the final matrix of clustering labels, the merge info matrix and the ARI
+the final matrix of clustering labels, the merge info matrix and the Metric
 improvement vector.
 }
 \description{
-Compute the ARI between every pair of clustering labels after merging every possible pair of clusters. Find the one that improves the ARI merging the most, merge the pair. Repeat until there is no improvement.
+Compute the Metric between every pair of clustering labels after merging every possible pair of clusters. Find the one that improves the Metric merging the most, merge the pair. Repeat until there is no improvement.
 }
 \details{
 The Dune algorithm merges pairs of clusters in order to improve the
-mean adjusted Rand Index with other clustering labels. It returns a list with
-four components.:
+mean adjusted Rand Index or the mean normalized mutual information with other
+clustering labels. It returns a list with five components.:
 #' \itemize{
 \item \code{initialMat}: The initial matrix of cluster labels
 \item \code{currentMat}: The final matrix of cluster labels
 \item \code{merges}: The step-by-step detail of the merges, recapitulating
 which clusters where merged in which cluster label
-\item \code{impARI}: How much each merge improved the mean ARI between the
+\item \code{impMetric}: How much each merge improved the mean Metric between the
 cluster label that has been merged and the other cluster labels.
+\item \code{metric}: The metric that was used to find the merges.
 }
 }
 \examples{

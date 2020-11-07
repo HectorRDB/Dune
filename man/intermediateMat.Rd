@@ -5,25 +5,33 @@
 \title{Find the clustering matrix that we would get if we stopped the ARI merging
 early}
 \usage{
-intermediateMat(merger, p = 1, n_steps = NULL)
+intermediateMat(merger, p = 1, average_n = NULL, n_steps = NULL)
 }
 \arguments{
 \item{merger}{the result from having run \code{\link{Dune}}
 on the dataset}
 
-\item{p}{A value between 0 and 1. We stop when the mean ARI has improved by p
-of the final total improvement. Default to 1 (i.e running the full merging).}
+\item{p}{A value between 0 and 1. We stop when the metric used for merging has
+improved by p of the final total improvement. Default to 1 (i.e running the full merging).}
 
-\item{n_steps}{Alternatively, you can specifiy the number of merging steps to
+\item{average_n}{Alternatively, you can specify the average number of clusters you
+want to have.}
+
+\item{n_steps}{Finally, you can specify the number of merging steps to
 do before stopping.}
 }
 \value{
-A matrix with the same dimensions as the currentmMat of the merger
-argument
+A data.frame with the same dimensions as the currentMat of the merger
+argument, plus one column with cell names, related to the rownames of the
+original input
 }
 \description{
 Find the clustering matrix that we would get if we stopped the ARI merging
 early
+}
+\details{
+If more than one of \code{p},\code{average_n} and \code{n_steps} is specified,
+then the order of preference is \code{n_steps}, then \code{average_n} then \code{p}.
 }
 \examples{
 data("clusMat", package = "Dune")

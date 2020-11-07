@@ -13,8 +13,8 @@ on the dataset}
 \item{f}{the function used. It must takes as input a clustering matrix and
 return a value}
 
-\item{p}{A value between 0 and 1. We stop when the mean ARI has improved by p
-of the final total improvement. Default to 1 (i.e running the full merging).}
+\item{p}{A value between 0 and 1. We stop when the metric used for merging has
+improved by p of the final total improvement. Default to 1 (i.e running the full merging).}
 
 \item{n_steps}{Alternatively, you can specifiy the number of merging steps to
 do before stopping.}
