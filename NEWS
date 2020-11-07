@@ -1,2 +1,7 @@
+Changes in version 1.3.01 (2020-11-06)
++ Dune now accepts multiple metrics
++ Dune now uses the NMI by default
+
+
 Changes in version 0.9.0 (2019-03-15)
 + Faster Dune version (from O(nlog(n)) to O(n))
