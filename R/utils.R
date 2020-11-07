@@ -77,6 +77,8 @@ NMIs <- function(clusMat, unclustered = NULL) {
 #'  on the dataset
 #' @param p A value between 0 and 1. We stop when the metric used for merging has
 #'  improved by p of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param average_n Alternatively, you can specify the average number of clusters you 
+#' want to have. 
 #' @return An integer giving the step where to stop.
 #' @details The \code{\link{Dune}} process improves the metric. This return
 #' the first merging step after which the metric has been improved by p of the
@@ -85,17 +87,37 @@ NMIs <- function(clusMat, unclustered = NULL) {
 #' data("clusMat", package = "Dune")
 #' merger <- Dune(clusMat = clusMat)
 #' whenToStop(merger, p = .5)
+#' @importFrom dplyr n_distinct
 #' @export
-whenToStop <- function(merger, p) {
-  if (p < 0 | p > 1) stop("p must be between 0 and 1")
-  if (merger$metric == "ARI") {
-    ARI <- ARIImp(merger)
-    j <- min(which(ARI[2:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))))  
-  } else if (merger$metric == "NMI") {
-    NMI <- NMIImp(merger)
-    j <- min(which(NMI[2:length(NMI)] >= min(NMI) + p * (max(NMI) - min(NMI))))  
+whenToStop <- function(merger, p = 1, average_n = NULL) {
+  if (!is.null(average_n)) {
+    init_average <- lapply(as.data.frame(merger$initialMat),
+                           dplyr::n_distinct) %>%
+      unlist() %>% mean()
+    final_average <- lapply(as.data.frame(merger$currentMat),
+                           dplyr::n_distinct) %>%
+      unlist() %>% mean()
+    if (average_n > init_average | average_n < final_average) {
+      stop("the requested average is not possible given the initial and final clusters")
+    }
+    j <- min(which(
+      init_average - 0:nrow(merger$merges) / ncol(merger$currentMat) < 
+        average_n
+    )) - 1
+  } else {
+    if (p < 0 | p > 1) stop("p must be between 0 and 1")
+    if (merger$metric == "ARI") {
+      ARI <- ARIImp(merger)
+      j <- min(which(
+        ARI[1:length(ARI)] >= min(ARI) + p * (max(ARI) - min(ARI))
+        )) - 1
+    } else if (merger$metric == "NMI") {
+      NMI <- NMIImp(merger)
+      j <- min(which(
+        NMI[1:length(NMI)] >= min(NMI) + p * (max(NMI) - min(NMI))
+      )) - 1
+    }  
   }
-  
   return(j)
 }
 

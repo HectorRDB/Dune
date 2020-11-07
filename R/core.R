@@ -65,10 +65,14 @@ NMIImp <- function(merger, unclustered = NULL) {
 #' Find the conversion between the old cluster and the final clusters
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
-#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
-#' of the final total improvement. Default to 1 (i.e running the full merging).
-#' @param n_steps Alternatively, you can specifiy the number of merging steps to
+#' @param p A value between 0 and 1. We stop when the metric used for merging has
+#'  improved by p of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param average_n Alternatively, you can specify the average number of clusters you 
+#' want to have. 
+#' @param n_steps Finally, you can specify the number of merging steps to
 #' do before stopping.
+#' @details If more than one of `p`,`average_n` and `n_steps` is specified, 
+#' then the order of preference is `n_steps`, then `average_n` then `p`.
 #' @return A list containing a matrix per clustering method, with a column for the old labels
 #' and a column for the new labels.
 #' @importFrom magrittr %>%
@@ -78,19 +82,19 @@ NMIImp <- function(merger, unclustered = NULL) {
 #' merger <- Dune(clusMat = clusMat)
 #' clusterConversion(merger)[[2]]
 #' @export
-clusterConversion <- function(merger, p = 1, n_steps = NULL) {
-  if (p == 0 | (!is.null(n_steps) && n_steps == 0)) {
+clusterConversion <- function(merger, p = 1, average_n = NULL, n_steps = NULL) {
+  if (is.null(n_steps)) {
+    j <- whenToStop(merger, p = p, average_n = average_n)
+  } else {
+    j <- n_steps
+  }
+  if (j == 0) {
     updates <- lapply(as.data.frame(merger$initialMat), function(clusters){
       return(data.frame(old = unique(clusters), new = unique(clusters)))
     })
   } else {
   # Compute ARI imp and find where to stop the merge
     merges <- merger$merges
-    if (is.null(n_steps)) {
-      j <- whenToStop(merger, p = p)
-    } else {
-      j <- n_steps
-    }
     merges <- merges[seq_len(j), ]
     updates <- lapply(colnames(merger$initialMat), function(clusLab){
       clusters <- unique(merger$initialMat[, clusLab])
@@ -113,13 +117,17 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
 #' early
 #' @param merger the result from having run \code{\link{Dune}}
 #'  on the dataset
-#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
-#' of the final total improvement. Default to 1 (i.e running the full merging).
-#' @param n_steps Alternatively, you can specifiy the number of merging steps to
+#' @param p A value between 0 and 1. We stop when the metric used for merging has
+#'  improved by p of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param average_n Alternatively, you can specify the average number of clusters you 
+#' want to have. 
+#' @param n_steps Finally, you can specify the number of merging steps to
 #' do before stopping.
 #' @return A data.frame with the same dimensions as the currentMat of the merger
 #' argument, plus one column with cell names, related to the rownames of the
 #'  original input 
+#' @details If more than one of `p`,`average_n` and `n_steps` is specified, 
+#' then the order of preference is `n_steps`, then `average_n` then `p`.
 #' @examples
 #' data("clusMat", package = "Dune")
 #' merger <- Dune(clusMat = clusMat)
@@ -128,9 +136,10 @@ clusterConversion <- function(merger, p = 1, n_steps = NULL) {
 #' @import dplyr
 #' @import tidyr
 #' @export
-intermediateMat <- function(merger, p = 1, n_steps = NULL) {
+intermediateMat <- function(merger, p = 1, average_n = NULL, n_steps = NULL) {
   # Get the conversion
-  oldToNew <- clusterConversion(merger = merger, p = p, n_steps = n_steps)
+  oldToNew <- clusterConversion(merger = merger, p = p, average_n = NULL,
+                                n_steps = n_steps)
   initialMat <- merger$initialMat %>% as.data.frame()
   names(oldToNew) <- colnames(initialMat)
   oldToNew <- bind_rows(oldToNew, .id = "cluster_label")
@@ -158,8 +167,8 @@ intermediateMat <- function(merger, p = 1, n_steps = NULL) {
 #' on the dataset
 #' @param f the function used. It must takes as input a clustering matrix and
 #' return a value
-#' @param p A value between 0 and 1. We stop when the mean ARI has improved by p
-#' of the final total improvement. Default to 1 (i.e running the full merging).
+#' @param p A value between 0 and 1. We stop when the metric used for merging has
+#'  improved by p of the final total improvement. Default to 1 (i.e running the full merging).
 #' @param n_steps Alternatively, you can specifiy the number of merging steps to
 #' do before stopping.
 #' @param ... additional arguments passed to f

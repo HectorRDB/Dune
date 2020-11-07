@@ -15,7 +15,7 @@ Dune(clusMat, ...)
   verbose = FALSE,
   parallel = FALSE,
   BPPARAM = BiocParallel::bpparam(),
-  metric = "ARI"
+  metric = "NMI"
 )
 
 \S4method{Dune}{data.frame}(
@@ -24,7 +24,7 @@ Dune(clusMat, ...)
   verbose = FALSE,
   parallel = FALSE,
   BPPARAM = BiocParallel::bpparam(),
-  metric = "ARI"
+  metric = "NMI"
 )
 
 \S4method{Dune}{SummarizedExperiment}(
@@ -34,7 +34,7 @@ Dune(clusMat, ...)
   verbose = FALSE,
   parallel = FALSE,
   BPPARAM = BiocParallel::bpparam(),
-  metric = "ARI"
+  metric = "NMI"
 )
 }
 \arguments{
@@ -55,7 +55,7 @@ See \code{bpparam} in \code{BiocParallel} package for details.
 Won't be used if \code{parallel} is FALSE.}
 
 \item{metric}{The metric that is tracked to decide which clusters to merge. For now,
-either ARI and NMI are accepted. See details.}
+either ARI and NMI are accepted. Default to NMI. See details.}
 
 \item{cluster_columns}{if \code{clusMat} is a \code{\link{SummarizedExperiment}},
 then this defines the columns of \code{colData} that are outputs from a clustering algorithm.}

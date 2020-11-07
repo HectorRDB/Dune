@@ -1,4 +1,4 @@
-.findMergeResults <- function(C, clusters, unclustered, confMats, metric = "ARI") {
+.findMergeResults <- function(C, clusters, unclustered, confMats, metric = "NMI") {
   # Get all pairs of clusters
   clusterNames <- clusters[[C]]
   if (!is.null(unclustered)) {
@@ -34,7 +34,7 @@
                   verbose = FALSE,
                   parallel = FALSE,
                   BPPARAM = BiocParallel::bpparam(),
-                  metric = "ARI"){
+                  metric = "NMI"){
   
   if (!metric %in% c("ARI", "NMI")) {
     stop("For now, only the ARI and NMI are accepted as metrics")
@@ -146,7 +146,7 @@
 #'   Won't be used if \code{parallel} is FALSE.
 #' @param verbose Whether or not the print cluster merging as it happens.
 #' @param metric The metric that is tracked to decide which clusters to merge. For now,
-#' either ARI and NMI are accepted. See details.
+#' either ARI and NMI are accepted. Default to NMI. See details. 
 #' @return A list with four components: the initial matrix of clustering labels,
 #'  the final matrix of clustering labels, the merge info matrix and the Metric
 #'  improvement vector.
@@ -183,7 +183,7 @@ setMethod(f = "Dune",
                                 verbose = FALSE,
                                 parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam(),
-                                metric = "ARI") {
+                                metric = "NMI") {
             merger <- .Dune(clusMat = clusMat, unclustered = unclustered,
                             verbose = verbose, BPPARAM = BPPARAM, metric = metric)
             return(merger)
@@ -198,7 +198,7 @@ setMethod(f = "Dune",
                                 verbose = FALSE,
                                 parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam(),
-                                metric = "ARI") {
+                                metric = "NMI") {
             merger <- .Dune(clusMat = clusMat, unclustered = unclustered,
                             verbose = verbose, BPPARAM = BPPARAM, metric = metric)
             return(merger)
@@ -216,7 +216,7 @@ setMethod(f = "Dune",
                                 verbose = FALSE,
                                 parallel = FALSE,
                                 BPPARAM = BiocParallel::bpparam(),
-                                metric = "ARI") {
+                                metric = "NMI") {
             df <- colData(clusMat)
             if (any(!cluster_columns %in% colnames(df))) {
               stop("All elements of cluster_columns should be in colData(clusMat)")
