@@ -1,7 +1,7 @@
 # Dune
 
 <!-- badges: start -->
-  [![Build Status](https://travis-ci.com/HectorRDB/Dune.svg?token=zVqScmB6wvrS9ZJSK57p&branch=before_bioc_release)](https://travis-ci.com/HectorRDB/Dune) [![codecov](https://codecov.io/gh/HectorRDB/Dune/branch/master/graph/badge.svg?token=snxfXtj87B)](https://codecov.io/gh/HectorRDB/Dune)
+[![R-CMD-check](https://github.com/HectorRDB/Dune/workflows/R-CMD-check/badge.svg?branch=master)](https://github.com/HectorRDB/Dune/actions)[codecov](https://codecov.io/gh/HectorRDB/Dune/branch/master/graph/badge.svg?token=snxfXtj87B)](https://codecov.io/gh/HectorRDB/Dune)
 <!-- badges: end -->
 
 <p align="center">
